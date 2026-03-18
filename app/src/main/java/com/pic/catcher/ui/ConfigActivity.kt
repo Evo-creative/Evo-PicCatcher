@@ -2,17 +2,19 @@ package com.pic.catcher.ui
 
 import android.os.Build
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowInsets
-import android.view.WindowInsetsController
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
+import com.google.android.material.color.DynamicColors
 import com.lu.magic.util.ToastUtil
 import com.lu.magic.util.log.LogUtil
 import com.pic.catcher.R
@@ -31,7 +33,6 @@ import com.pic.catcher.databinding.ItemConfigSpinnerBinding
 import com.pic.catcher.databinding.ItemConfigSwitchBinding
 import com.pic.catcher.databinding.ItemConfigTextBinding
 import com.pic.catcher.ui.config.PicFormat
-import com.pic.catcher.util.BarUtils
 import com.pic.catcher.util.ext.dp
 import com.pic.catcher.util.ext.setPadding
 import com.pic.catcher.util.ext.toIntElse
@@ -42,6 +43,11 @@ class ConfigActivity : BindingActivity<ActivityConfigBinding>() {
     private lateinit var moduleConfig: ModuleConfig
     private lateinit var mConfigSourceText: String
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        // 启用 Material You 动态取色
+        DynamicColors.applyToActivityIfAvailable(this)
+        super.onCreate(savedInstanceState)
+    }
 
     override fun onInflateBinding(): ActivityConfigBinding {
         return ActivityConfigBinding.inflate(layoutInflater, null, false)
@@ -51,23 +57,24 @@ class ConfigActivity : BindingActivity<ActivityConfigBinding>() {
         moduleConfig = ModuleConfig.instance
         mConfigSourceText = moduleConfig.source.toString()
 
+        // 沉浸式状态栏设置
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        
         // 设置标题
         mBinding.toolbar.setTitle(R.string.app_title_config)
-        mBinding.toolbar.setNavigationIcon(R.drawable.ic_back)
-        // 设置导航图标（例如返回按钮）
+        setSupportActionBar(mBinding.toolbar)
         mBinding.toolbar.setNavigationOnClickListener {
             finish()
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            mBinding.root.setOnApplyWindowInsetsListener { view, insets ->
-                LogUtil.d("Display Cutout", "onApplyWindowInsets")
-                // 设置Toolbar的Padding
-                mBinding.toolbar.setPadding(0, insets.systemWindowInsetTop, 0, 0)
-                return@setOnApplyWindowInsetsListener insets
-            }
-        } else {
-            mBinding.toolbar.setPadding(0, BarUtils.getStatusBarHeight(), 0, 0)
+
+        // 处理 Window Insets
+        ViewCompat.setOnApplyWindowInsetsListener(mBinding.root) { view, windowInsets ->
+            val systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            mBinding.appBarLayout.updatePadding(top = systemBars.top)
+            mBinding.listView.updatePadding(bottom = systemBars.bottom)
+            windowInsets
         }
+
         mAdapter = ConfigListAdapter().apply {
             val picFormatList = listOf<String>(
                 PicFormat.WEBP,
@@ -80,19 +87,16 @@ class ConfigActivity : BindingActivity<ActivityConfigBinding>() {
             setData(
                 listOf(
                     SwitchItem(getString(R.string.config_catch_net_pic), moduleConfig.isCatchNetPic).apply {
-                        //属性变更监听
                         addPropertyChangeListener {
                             moduleConfig.isCatchNetPic = checked
                         }
                     },
                     SwitchItem(getString(R.string.config_catch_webview_pic), moduleConfig.isCatchWebViewPic).apply {
-                        //属性变更监听
                         addPropertyChangeListener {
                             moduleConfig.isCatchWebViewPic = checked
                         }
                     },
                     SwitchItem(getString(R.string.config_catch_glide_pic), moduleConfig.isCatchGlidePic).apply {
-                        //属性变更监听
                         addPropertyChangeListener {
                             moduleConfig.isCatchGlidePic = checked
                         }
@@ -136,72 +140,37 @@ class ConfigActivity : BindingActivity<ActivityConfigBinding>() {
             return 4
         }
 
-        override fun setData(data: List<ItemType>): CommonListAdapter<ItemType, BindingHolder> {
-            return super.setData(data)
-        }
-
         override fun getItemViewType(position: Int): Int {
             return when (getItem(position)) {
-                is SwitchItem -> {
-                    ItemType.TYPE_SWITCH
-                }
-
-                is EditItem -> {
-                    ItemType.TYPE_EDIT
-                }
-
-                is TextItem -> {
-                    ItemType.TYPE_TEXT
-                }
-
-                is SpinnerItem -> {
-                    ItemType.TYPE_SPINNER
-                }
-
-                else -> {
-                    ItemType.TYPE_TEXT
-                }
+                is SwitchItem -> ItemType.TYPE_SWITCH
+                is EditItem -> ItemType.TYPE_EDIT
+                is TextItem -> ItemType.TYPE_TEXT
+                is SpinnerItem -> ItemType.TYPE_SPINNER
+                else -> ItemType.TYPE_TEXT
             }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BindingHolder {
-
             return when (viewType) {
-                ItemType.TYPE_SWITCH -> {
-                    BindingHolder(ItemConfigSwitchBinding.inflate(layoutInflater, parent, false))
-                }
-
-                ItemType.TYPE_EDIT -> {
-                    BindingHolder(ItemConfigEditBinding.inflate(layoutInflater, parent, false))
-                }
-
-                ItemType.TYPE_SPINNER -> {
-                    BindingHolder(ItemConfigSpinnerBinding.inflate(layoutInflater, parent, false))
-                }
-
-                else -> {
-                    BindingHolder(ItemConfigTextBinding.inflate(layoutInflater, parent, false))
-                }
+                ItemType.TYPE_SWITCH -> BindingHolder(ItemConfigSwitchBinding.inflate(layoutInflater, parent, false))
+                ItemType.TYPE_EDIT -> BindingHolder(ItemConfigEditBinding.inflate(layoutInflater, parent, false))
+                ItemType.TYPE_SPINNER -> BindingHolder(ItemConfigSpinnerBinding.inflate(layoutInflater, parent, false))
+                else -> BindingHolder(ItemConfigTextBinding.inflate(layoutInflater, parent, false))
             }
         }
 
         override fun onBindViewHolder(vh: BindingHolder, position: Int, parent: ViewGroup) {
-            vh.binding.root.setPadding(h = 18.dp, v = 0)
+            vh.binding.root.setPadding(h = 16.dp, v = 8.dp)
 
             when (val item = getItem(position)) {
                 is SwitchItem -> {
                     val holder = vh.binding as ItemConfigSwitchBinding
                     holder.itemTitle.text = item.title
-                    holder.itemSwitch.setOnCheckedChangeListener({ v, isChecked ->
-                        if (item.checked == isChecked) {
-                            return@setOnCheckedChangeListener
-                        }
-                        item.checked = isChecked
-                        //监听必须在设置itemSwitch.isChecked之前，防止漏掉。
-                        //因为视图复用
-                        LogUtil.d("itemSwitch change", v, "item", item.toJson())
-                    })
+                    holder.itemSwitch.setOnCheckedChangeListener(null)
                     holder.itemSwitch.isChecked = item.checked
+                    holder.itemSwitch.setOnCheckedChangeListener { _, isChecked ->
+                        item.checked = isChecked
+                    }
                 }
 
                 is EditItem -> {
@@ -209,33 +178,25 @@ class ConfigActivity : BindingActivity<ActivityConfigBinding>() {
                     holder.itemTitle.text = item.name
                     holder.itemEdit.inputType = item.inputType
                     holder.itemEdit.setText(item.value)
-                    var textWatcher = holder.itemEdit.getTag(holder.itemEdit.id)
-                    if (textWatcher != null && textWatcher is TextWatcher) {
-                        holder.itemEdit.removeTextChangedListener(textWatcher)
-                    }
-                    textWatcher = object : TextWatcher {
-                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
-                        }
-
-                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
-                        }
-
+                    
+                    val oldWatcher = holder.itemEdit.getTag(R.id.tag_text_watcher) as? TextWatcher
+                    holder.itemEdit.removeTextChangedListener(oldWatcher)
+                    
+                    val textWatcher = object : TextWatcher {
+                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
                         override fun afterTextChanged(s: Editable?) {
                             item.value = s?.toString()
                         }
-
                     }
-                    holder.itemEdit.setTag(holder.itemEdit.id, textWatcher)
+                    holder.itemEdit.setTag(R.id.tag_text_watcher, textWatcher)
                     holder.itemEdit.addTextChangedListener(textWatcher)
                 }
 
                 is SpinnerItem -> {
                     val holder = vh.binding as ItemConfigSpinnerBinding
                     holder.itemTitle.text = item.title
-                    holder.itemSpinner.adapter =
-                        ArrayAdapter(vh.itemView.context, android.R.layout.simple_spinner_item, item.items)
+                    holder.itemSpinner.adapter = ArrayAdapter(vh.itemView.context, android.R.layout.simple_spinner_item, item.items)
                     holder.itemSpinner.setSelection(item.selectedIndex)
                     holder.itemSpinner.onItemSelectedListener = object : OnItemSelectedListener {
                         override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -247,11 +208,7 @@ class ConfigActivity : BindingActivity<ActivityConfigBinding>() {
                                 else -> ""
                             }
                         }
-
-                        override fun onNothingSelected(parent: AdapterView<*>?) {
-
-                        }
-
+                        override fun onNothingSelected(parent: AdapterView<*>?) {}
                     }
                 }
 

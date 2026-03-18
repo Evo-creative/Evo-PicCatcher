@@ -1,17 +1,17 @@
 package com.pic.catcher.base;
 
-import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * @author Mingyueyixi
  * @date 2024/9/28 19:25
  * @description BaseActivity
  */
-public class BaseActivity extends Activity implements CustomLifecycleOwner{
+public class BaseActivity extends AppCompatActivity implements CustomLifecycleOwner{
     private CustomLifecycleOwnerDelegate mCustomLifecycleOwnerDelegate = new CustomLifecycleOwnerDelegate();
     @NonNull
     @Override

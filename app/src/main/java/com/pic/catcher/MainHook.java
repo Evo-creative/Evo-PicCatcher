@@ -16,10 +16,14 @@ import com.lu.magic.util.AppUtil;
 import com.lu.magic.util.log.LogUtil;
 import com.lu.magic.util.log.SimpleLogger;
 import com.pic.catcher.plugin.BitmapCatcherPlugin;
+import com.pic.catcher.plugin.CanvasCatcherPlugin;
+import com.pic.catcher.plugin.DrawableCatcherPlugin;
 import com.pic.catcher.plugin.FrescoCatcherPlugin;
 import com.pic.catcher.plugin.GlideCatcherPlugin;
+import com.pic.catcher.plugin.MovieCatcherPlugin;
 import com.pic.catcher.plugin.OKHttpPlugin;
 import com.pic.catcher.plugin.WebViewCatcherPlugin;
+import com.pic.catcher.plugin.X5WebViewCatcherPlugin;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -121,7 +125,7 @@ public class MainHook implements IXposedHookLoadPackage, IXposedHookZygoteInit, 
 //                lpparam.classLoader,
 //                "attach",
 //                Context.class.getName(),
-//                new XC_MethodHook() {
+//                new XC_MethodHook2() {
 //                    @Override
 //                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 //                        initPlugin((Context) param.args[0], lpparam);
@@ -196,8 +200,12 @@ public class MainHook implements IXposedHookLoadPackage, IXposedHookZygoteInit, 
                 BitmapCatcherPlugin.class,
                 GlideCatcherPlugin.class,
                 WebViewCatcherPlugin.class,
+                X5WebViewCatcherPlugin.class,
                 OKHttpPlugin.class,
-                FrescoCatcherPlugin.class
+                FrescoCatcherPlugin.class,
+                DrawableCatcherPlugin.class,
+                CanvasCatcherPlugin.class,
+                MovieCatcherPlugin.class
         ).handleHooks(context, lpparam);
 
     }

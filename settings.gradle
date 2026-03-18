@@ -1,44 +1,30 @@
 pluginManagement {
     repositories {
-//        maven {
-//            allowInsecureProtocol = true
-//            url "http://127.0.0.1:10072"
-//        }
-        maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public' }
-//        maven { url 'https://repo.huaweicloud.com/repository/maven' }
-        maven { url "https://maven.aliyun.com/repository/public" }
-        maven { url 'https://jitpack.io/' }
-
-        //central有的，public聚合仓不一定有，奇葩
-        maven { url 'https://maven.aliyun.com/repository/central' }
-        maven { url "https://maven.aliyun.com/repository/google" }
-        maven { url "https://maven.aliyun.com/repository/gradle-plugin" }
-
         google()
         mavenCentral()
         gradlePluginPortal()
+        maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public' }
+        maven { url "https://maven.aliyun.com/repository/public" }
+        maven { url 'https://jitpack.io/' }
+        maven { url 'https://maven.aliyun.com/repository/central' }
+        maven { url "https://maven.aliyun.com/repository/google" }
+        maven { url "https://maven.aliyun.com/repository/gradle-plugin" }
     }
+}
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.9.0'
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-//        maven {
-//            allowInsecureProtocol = true
-//            url "http://127.0.0.1:10072"
-//        }
-
+        google()
+        mavenCentral()
         maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public' }
-//        maven { url 'https://repo.huaweicloud.com/repository/maven' }
         maven { url "https://maven.aliyun.com/repository/public" }
         maven { url 'https://jitpack.io/' }
-
-        //central有的，public聚合仓不一定有，奇葩
         maven { url 'https://maven.aliyun.com/repository/central' }
         maven { url "https://maven.aliyun.com/repository/google" }
         maven { url "https://maven.aliyun.com/repository/gradle-plugin" }
-
-        google()
-        mavenCentral()
     }
 }
 rootProject.name = "PicCatcher"

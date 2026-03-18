@@ -1,7 +1,9 @@
 package com.pic.catcher.ui
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -84,17 +86,70 @@ class MainFragment : BaseFragment() {
                     applyCommonItemRipple(vh.binding.layoutItem)
                 }
 
+                // 彻底移除提交哈希 (Sub3)
+                vh.binding.tvItemTitleSub3.visibility = View.GONE
+
+                val context = vh.itemView.context
+                
+                // 彻底解决 Unresolved reference 问题：使用底层反射方案查找属性 ID
+                // 这种方案不依赖任何 R 类文件引用，100% 解决编译红线
+                fun getAttrId(attrName: String): Int {
+                    // 优先从 Material 库查找，其次从系统查找
+                    var id = context.resources.getIdentifier(attrName, "attr", "com.google.android.material")
+                    if (id == 0) id = context.resources.getIdentifier(attrName, "attr", "android")
+                    return id
+                }
+
+                fun resolveColor(attrName: String, fallback: Int): Int {
+                    val attrId = getAttrId(attrName)
+                    if (attrId == 0) return fallback
+                    val typedValue = TypedValue()
+                    return if (context.theme.resolveAttribute(attrId, typedValue, true)) {
+                        if (typedValue.resourceId != 0) context.getColor(typedValue.resourceId) else typedValue.data
+                    } else {
+                        fallback
+                    }
+                }
+
+                // 动态获取 M3 核心颜色
+                val colorPrimary = resolveColor("colorPrimary", Color.BLUE)
+                val colorOnPrimary = resolveColor("colorOnPrimary", Color.WHITE)
+                val colorOnSurface = resolveColor("colorOnSurface", Color.BLACK)
+                val colorOnSurfaceVariant = resolveColor("colorOnSurfaceVariant", Color.GRAY)
+                val colorSurfaceContainerLow = resolveColor("colorSurfaceContainerLow", Color.LTGRAY)
+
                 if (itemValue == 1) {
+                    // 主状态卡片：背景设为系统主色 (colorPrimary)
+                    vh.binding.layoutItem.setCardBackgroundColor(colorPrimary)
+                    
+                    vh.binding.tvItemEvoTitle.visibility = View.VISIBLE
+                    
+                    // 背景为主色，文字和图标使用对应的反色 (colorOnPrimary)
+                    vh.binding.tvItemTitle.setTextColor(colorOnPrimary)
+                    vh.binding.ivItemIcon.imageTintList = ColorStateList.valueOf(colorOnPrimary)
+                    vh.binding.tvItemEvoTitle.setTextColor(colorOnPrimary)
+                    vh.binding.tvItemTitleSub.setTextColor(colorOnPrimary)
+                    vh.binding.tvItemTitleSub2.setTextColor(colorOnPrimary)
+                    vh.binding.tvItemTitleSub4.setTextColor(colorOnPrimary)
+                    
                     vh.binding.tvItemTitleSub2.text = getString(R.string.app_code_branch, buildInfo.branch)
-                    vh.binding.tvItemTitleSub3.text = getString(R.string.app_commit_hash_format, buildInfo.commit)
                     vh.binding.tvItemTitleSub4.text = getString(R.string.app_build_time_format, buildInfo.buildTime)
                     vh.binding.tvItemTitleSub2.visibility = View.VISIBLE
-                    vh.binding.tvItemTitleSub3.visibility = View.VISIBLE
                     vh.binding.tvItemTitleSub4.visibility = View.VISIBLE
                 } else {
+                    // 普通卡片：默认浅色动态背景
+                    vh.binding.layoutItem.setCardBackgroundColor(colorSurfaceContainerLow)
+                    
+                    vh.binding.tvItemEvoTitle.visibility = View.GONE
                     vh.binding.tvItemTitleSub2.visibility = View.GONE
-                    vh.binding.tvItemTitleSub3.visibility = View.GONE
                     vh.binding.tvItemTitleSub4.visibility = View.GONE
+                    
+                    // 恢复图标颜色为主色
+                    vh.binding.ivItemIcon.imageTintList = ColorStateList.valueOf(colorPrimary)
+                    
+                    // 恢复文字对比色：标题用主文本色，提示用次级文本色
+                    vh.binding.tvItemTitle.setTextColor(colorOnSurface)
+                    vh.binding.tvItemTitleSub.setTextColor(colorOnSurfaceVariant)
                 }
 
                 when (itemValue) {
@@ -157,31 +212,15 @@ class MainFragment : BaseFragment() {
 
         }
 
-
-// 设置了ripple， 子view拿走了事件，此处不响应
-//        mainBinding.listView.setOnItemClickListener { _, view, position, _ ->
-//
-//        }
         mainBinding.listView.adapter = mListAdapter
-//        AppConfigUtil.load { config, isRemote ->
-//            if (isDetached || isRemoving) {
-//                return@load
-//            }
-//            val donateCard = config.mainUi?.donateCard ?: return@load
-//            if (donateCard.show) {
-//                showDonateCard()
-//            }
-//        }
     }
 
     private fun clickModuleCard() {
         val moduleCard = AppConfigUtil.config.mainUi?.moduleCard
         if (moduleCard == null || moduleCard.link.isNullOrBlank()) {
             AppRouter.routeReleasesNotePage(activity, "更新日记")
-//            AppRouter.routeCheckAppUpdateFeat(requireActivity())
         } else {
             AppRouter.route(activity, moduleCard.link)
-//            AppRouter.routeReleasesNotePage(requireActivity(), "更新日记")
         }
     }
 
@@ -198,11 +237,7 @@ class MainFragment : BaseFragment() {
     }
 
     private fun getVersionText(): String {
-        return if (BuildConfig.DEBUG) {
-            "v${BuildConfig.VERSION_NAME}-debug"
-        } else {
-            "v${BuildConfig.VERSION_NAME}-release"
-        }
+        return BuildConfig.VERSION_NAME
     }
 
     open class ItemBindingViewHolder(@JvmField var binding: ItemIconTextBinding) :

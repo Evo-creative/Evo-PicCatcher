@@ -3,6 +3,8 @@ package com.pic.catcher.ui
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
+import androidx.core.view.WindowCompat
+import com.google.android.material.color.DynamicColors
 import com.pic.catcher.base.BaseActivity
 import com.pic.catcher.base.FragmentNavigation
 import com.pic.catcher.base.ViewModelProviders
@@ -16,7 +18,13 @@ class MainActivity : BaseActivity() {
     private lateinit var binding: LayoutMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 启用 Material You 动态取色
+        DynamicColors.applyToActivityIfAvailable(this)
         super.onCreate(savedInstanceState)
+        
+        // 沉浸式状态栏支持
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        
         binding = LayoutMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         fragmentNavigation = FragmentNavigation(this, binding.mainContainer.id)
@@ -53,7 +61,6 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         super.onCreateOptionsMenu(menu)
         JsonMenuManager.inflate(this, menu)
         return true
