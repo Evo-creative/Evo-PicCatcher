@@ -1,6 +1,6 @@
 # Evo-PicCatcher(图片捕手)
 
-本项目是对[PicCatcher(图片捕手)](https://github.com/Mingyueyixi/PicCatcher)的延续
+本项目是对[PicCatcher(图片捕手)](https://github.com/Mingyueyixi/PicCatcher)的修改
 
 ## 介绍
 
