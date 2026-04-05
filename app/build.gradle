@@ -67,8 +67,8 @@ android {
         applicationId "com.evo.piccatcher"
         minSdk 24
         targetSdk TARGET_SDK_VERSION.toInteger()
-        versionCode 41
-        versionName "v3.5.12-evo"
+        versionCode 43
+        versionName "3.5.12"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -126,7 +126,10 @@ android {
         def size = outputs.size()
         def commit = new JSONObject(buildInfoJson).optString("commit").substring(0, 6)
         outputs.eachWithIndex { Object output, int index ->
-            def fontName = "piccatcher-${variant.versionName}-${variant.name}"
+            // 如果是 debug 构建，去掉文件名中的 -debug
+            def variantName = variant.name == "debug" ? "" : "-${variant.name}"
+            def fontName = "piccatcher-${variant.versionName}${variantName}"
+            
             if (size == 1) {
                 output.outputFileName = "${fontName}.apk"
             } else {

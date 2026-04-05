@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 背景装饰：后台列表卡片，使用动态 Accent 颜色 -->
+    <path
+        android:fillColor="@color/app_launcher_accent"
+        android:pathData="M24,20 h12 a4,4 0,0 1,4 4 v12 a4,4 0,0 1,-4 4 h-12 a4,4 0,0 1,-4 -4 v-12 a4,4 0,0 1,4 -4 z" />
+    <path
+        android:fillColor="@color/app_launcher_accent"
+        android:pathData="M24,68 h12 a4,4 0,0 1,4 4 v12 a4,4 0,0 1,-4 4 h-12 a4,4 0,0 1,-4 -4 v-12 a4,4 0,0 1,4 -4 z" />
+    <path
+        android:fillColor="@color/app_launcher_accent"
+        android:pathData="M72,68 h12 a4,4 0,0 1,4 4 v12 a4,4 0,0 1,-4 4 h-12 a4,4 0,0 1,-4 -4 v-12 a4,4 0,0 1,4 -4 z" />
+    <!-- 圆形元素 -->
+    <path
+        android:fillColor="@color/app_launcher_accent"
+        android:pathData="M78,28 m-10,0 a10,10 0,1 0,20 0 a10,10 0,1 0,-20 0" />
+
+    <!-- 中心 Google Sans 风格圆角字母 E，使用动态 Foreground 颜色 -->
+    <group
+        android:translateX="39"
+        android:translateY="32">
+        <path
+            android:fillColor="@color/app_launcher_foreground"
+            android:pathData="M0,4 a4,4 0,0 1,8 0 v36 a4,4 0,0 1,-8 0 z" />
+        <path
+            android:fillColor="@color/app_launcher_foreground"
+            android:pathData="M4,0 h22 a4,4 0,0 1,0 8 h-22 a4,4 0,0 1,0 -8 z" />
+        <path
+            android:fillColor="@color/app_launcher_foreground"
+            android:pathData="M4,18 h16 a4,4 0,0 1,0 8 h-16 a4,4 0,0 1,0 -8 z" />
+        <path
+            android:fillColor="@color/app_launcher_foreground"
+            android:pathData="M4,36 h22 a4,4 0,0 1,0 8 h-22 a4,4 0,0 1,0 -8 z" />
+    </group>
+
+</vector>
