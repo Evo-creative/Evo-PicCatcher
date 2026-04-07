@@ -11,6 +11,16 @@ It can be useful for debugging, analysis, and automation purposes.
 
 If you have any feature suggestions, feel free to open an Issue. Contributions and ideas are welcome.
 
+## Usage
+
+Select scope apps in LSPosed Manager
+
+When apps in the scope are running and display images, the images will be captured (currently the capture methods can only cover most of the content, please understand)
+
+Notes:
+- The captured images are those that are displayed, so if only thumbnails are shown, only thumbnails can be captured, not the original images
+- The capture is done during app runtime and does not generate any network traffic
+
 ## Improvements over the original project
 
 - Rebuilt UI following Material Design 3 guidelines  
