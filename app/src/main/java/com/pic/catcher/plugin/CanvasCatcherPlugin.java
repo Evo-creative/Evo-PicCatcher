@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Matrix;
+import android.os.Build;
 
 import com.lu.lposed.api2.XC_MethodHook2;
 import com.lu.lposed.api2.XposedHelpers2;
@@ -16,89 +17,49 @@ import com.lu.magic.util.log.LogUtil;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 /**
- * @author Mingyueyixi
- * @description 拦截 Canvas.drawBitmap，这是一个底层的“兜底”方案。
+ * 增强型画布拦截器
+ * 支持 BaseCanvas 拦截，覆盖 Android 10+ 的底层绘制路径
  */
 public class CanvasCatcherPlugin implements IPlugin {
     @Override
     public void handleHook(Context context, XC_LoadPackage.LoadPackageParam loadPackageParam) {
-        // Hook Canvas.drawBitmap(Bitmap, float, float, Paint)
-        XposedHelpers2.findAndHookMethod(
-                Canvas.class,
-                "drawBitmap",
-                Bitmap.class,
-                float.class,
-                float.class,
-                Paint.class,
-                new XC_MethodHook2() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        Bitmap bitmap = (Bitmap) param.args[0];
-                        if (bitmap != null) {
-                            LogUtil.d("CanvasCatcherPlugin", "Canvas.drawBitmap(Bitmap, float, float, Paint) captured");
-                            PicExportManager.getInstance().exportBitmap(bitmap);
-                        }
-                    }
-                }
-        );
+        
+        // Android 10+ 许多方法移到了 BaseCanvas
+        Class<?> targetClass = Canvas.class;
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                targetClass = Class.forName("android.graphics.BaseCanvas");
+            }
+        } catch (ClassNotFoundException ignored) {}
 
-        // Hook Canvas.drawBitmap(Bitmap, Rect, Rect, Paint)
-        XposedHelpers2.findAndHookMethod(
-                Canvas.class,
-                "drawBitmap",
-                Bitmap.class,
-                Rect.class,
-                Rect.class,
-                Paint.class,
-                new XC_MethodHook2() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        Bitmap bitmap = (Bitmap) param.args[0];
-                        if (bitmap != null) {
-                            LogUtil.d("CanvasCatcherPlugin", "Canvas.drawBitmap(Bitmap, Rect, Rect, Paint) captured");
-                            PicExportManager.getInstance().exportBitmap(bitmap);
-                        }
+        // 核心：拦截所有 drawBitmap 重载
+        XposedHelpers2.hookAllMethods(targetClass, "drawBitmap", new XC_MethodHook2() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) {
+                if (param.args.length > 0 && param.args[0] instanceof Bitmap) {
+                    Bitmap bitmap = (Bitmap) param.args[0];
+                    if (isValid(bitmap)) {
+                        LogUtil.d("CanvasCatcher", "Captured from " + param.method.getName());
+                        PicExportManager.getInstance().exportBitmap(bitmap);
                     }
                 }
-        );
+            }
+        });
 
-        // Hook Canvas.drawBitmap(Bitmap, Rect, RectF, Paint)
-        XposedHelpers2.findAndHookMethod(
-                Canvas.class,
-                "drawBitmap",
-                Bitmap.class,
-                Rect.class,
-                RectF.class,
-                Paint.class,
-                new XC_MethodHook2() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        Bitmap bitmap = (Bitmap) param.args[0];
-                        if (bitmap != null) {
-                            LogUtil.d("CanvasCatcherPlugin", "Canvas.drawBitmap(Bitmap, Rect, RectF, Paint) captured");
-                            PicExportManager.getInstance().exportBitmap(bitmap);
-                        }
-                    }
+        // 针对漫画 App 特有的 drawBitmapMesh (用于翻页特效或拉伸)
+        XposedHelpers2.hookAllMethods(targetClass, "drawBitmapMesh", new XC_MethodHook2() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) {
+                Bitmap bitmap = (Bitmap) param.args[0];
+                if (isValid(bitmap)) {
+                    LogUtil.d("CanvasCatcher", "Captured from drawBitmapMesh");
+                    PicExportManager.getInstance().exportBitmap(bitmap);
                 }
-        );
+            }
+        });
+    }
 
-        // Hook Canvas.drawBitmap(Bitmap, Matrix, Paint)
-        XposedHelpers2.findAndHookMethod(
-                Canvas.class,
-                "drawBitmap",
-                Bitmap.class,
-                Matrix.class,
-                Paint.class,
-                new XC_MethodHook2() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        Bitmap bitmap = (Bitmap) param.args[0];
-                        if (bitmap != null) {
-                            LogUtil.d("CanvasCatcherPlugin", "Canvas.drawBitmap(Bitmap, Matrix, Paint) captured");
-                            PicExportManager.getInstance().exportBitmap(bitmap);
-                        }
-                    }
-                }
-        );
+    private boolean isValid(Bitmap bitmap) {
+        return bitmap != null && !bitmap.isRecycled() && bitmap.getWidth() > 100 && bitmap.getHeight() > 100;
     }
 }

@@ -25,6 +25,8 @@
     <string name="config_max_log_size">日志大小上限（单位/MiB）</string>
     <string name="config_catch_webview_pic">抓取webView图片</string>
     <string name="config_catch_glide_pic">抓取glide框架图片</string>
+    <string name="config_catch_native_pic">抓取底层位图 (推荐开启)</string>
+    <string name="config_catch_rendernode_pic">抓取硬件渲染内容</string>
     <string name="config_save_to_internal">图片保存到内部</string>
     <string name="config_save_to_internal_off">图片会保存到Pictures/PicCatcher</string>
     <string name="config_save_to_internal_on">图片会保存到Android/data/com.evo.piccatcher/files/Pictures</string>

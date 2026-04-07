@@ -9,11 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Toast
-import com.lu.magic.util.ToastUtil
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.pic.catcher.R
 import com.pic.catcher.adapter.BindingListAdapter
-import com.pic.catcher.adapter.CommonListAdapter
 import com.pic.catcher.base.BaseFragment
 import com.pic.catcher.bean.EditItem
 import com.pic.catcher.bean.ItemType
@@ -49,28 +48,37 @@ class SettingsFragment : BaseFragment() {
         moduleConfig = ModuleConfig.getInstance()
         mConfigSourceText = moduleConfig.source.toString()
 
+        // 处理输入法弹起时的布局遮挡
+        ViewCompat.setOnApplyWindowInsetsListener(binding.listView) { v, insets ->
+            val imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            val navHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            val basePaddingBottom = 80.dp
+            val finalPaddingBottom = if (imeHeight > 0) imeHeight + 8.dp else navHeight + basePaddingBottom
+            v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, finalPaddingBottom)
+            insets
+        }
+
         mAdapter = ConfigListAdapter().apply {
             val picFormatList = listOf(PicFormat.WEBP, PicFormat.JPG, PicFormat.PNG)
             val picSelectFormatIndex = picFormatList.indexOfFirst { it == moduleConfig.picDefaultSaveFormat }
             setData(
                 listOf(
                     SwitchItem(getString(R.string.config_catch_net_pic), moduleConfig.isCatchNetPic).apply {
-                        addPropertyChangeListener { 
-                            moduleConfig.isCatchNetPic = checked 
-                            updateConfig()
-                        }
+                        addPropertyChangeListener { moduleConfig.isCatchNetPic = checked; updateConfig() }
                     },
                     SwitchItem(getString(R.string.config_catch_webview_pic), moduleConfig.isCatchWebViewPic).apply {
-                        addPropertyChangeListener { 
-                            moduleConfig.isCatchWebViewPic = checked 
-                            updateConfig()
-                        }
+                        addPropertyChangeListener { moduleConfig.isCatchWebViewPic = checked; updateConfig() }
                     },
                     SwitchItem(getString(R.string.config_catch_glide_pic), moduleConfig.isCatchGlidePic).apply {
-                        addPropertyChangeListener { 
-                            moduleConfig.isCatchGlidePic = checked 
-                            updateConfig()
-                        }
+                        addPropertyChangeListener { moduleConfig.isCatchGlidePic = checked; updateConfig() }
+                    },
+                    // 新增：抓取底层位图开关
+                    SwitchItem(getString(R.string.config_catch_native_pic), moduleConfig.isCatchNativePic).apply {
+                        addPropertyChangeListener { moduleConfig.isCatchNativePic = checked; updateConfig() }
+                    },
+                    // 新增：抓取硬件渲染内容开关
+                    SwitchItem(getString(R.string.config_catch_rendernode_pic), moduleConfig.isCatchRenderNodePic).apply {
+                        addPropertyChangeListener { moduleConfig.isCatchRenderNodePic = checked; updateConfig() }
                     },
                     SwitchItem(
                         getString(R.string.config_save_to_internal),
@@ -86,35 +94,14 @@ class SettingsFragment : BaseFragment() {
                             }
                         }
                     },
-                    EditItem(
-                        getString(R.string.config_min_space_size),
-                        moduleConfig.minSpaceSize.toString(),
-                        InputType.TYPE_CLASS_NUMBER
-                    ).apply {
-                        addPropertyChangeListener { 
-                            moduleConfig.minSpaceSize = value.toIntElse(0) 
-                            updateConfig()
-                        }
+                    EditItem(getString(R.string.config_min_space_size), moduleConfig.minSpaceSize.toString(), InputType.TYPE_CLASS_NUMBER).apply {
+                        addPropertyChangeListener { moduleConfig.minSpaceSize = value.toIntElse(0); updateConfig() }
                     },
-                    EditItem(
-                        getString(R.string.config_max_log_size),
-                        moduleConfig.maxLogSizeMiB.toString(),
-                        InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-                    ).apply {
-                        addPropertyChangeListener { 
-                            moduleConfig.maxLogSizeMiB = value.toDoubleElse(2.0)
-                            updateConfig()
-                        }
+                    EditItem(getString(R.string.config_max_log_size), moduleConfig.maxLogSizeMiB.toString(), InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL).apply {
+                        addPropertyChangeListener { moduleConfig.maxLogSizeMiB = value.toDoubleElse(2.0); updateConfig() }
                     },
-                    SpinnerItem(
-                        getString(R.string.config_save_pic_default_format),
-                        picFormatList,
-                        picSelectFormatIndex
-                    ).apply {
-                        addPropertyChangeListener { 
-                            moduleConfig.picDefaultSaveFormat = picFormatList[selectedIndex] 
-                            updateConfig()
-                        }
+                    SpinnerItem(getString(R.string.config_save_pic_default_format), picFormatList, picSelectFormatIndex).apply {
+                        addPropertyChangeListener { moduleConfig.picDefaultSaveFormat = picFormatList[selectedIndex]; updateConfig() }
                     },
                 )
             )
@@ -153,14 +140,8 @@ class SettingsFragment : BaseFragment() {
                 is SwitchItem -> {
                     val holder = vh.binding as ItemConfigSwitchBinding
                     holder.itemTitle.text = item.title
-                    
-                    if (item.desc != null) {
-                        holder.itemDesc.visibility = View.VISIBLE
-                        holder.itemDesc.text = item.desc
-                    } else {
-                        holder.itemDesc.visibility = View.GONE
-                    }
-
+                    holder.itemDesc.visibility = if (item.desc != null) View.VISIBLE else View.GONE
+                    holder.itemDesc.text = item.desc
                     holder.itemSwitch.setOnCheckedChangeListener(null)
                     holder.itemSwitch.isChecked = item.checked
                     holder.itemSwitch.setOnCheckedChangeListener { _, isChecked -> item.checked = isChecked }
@@ -170,24 +151,19 @@ class SettingsFragment : BaseFragment() {
                     holder.itemTitle.text = item.name
                     holder.itemEdit.inputType = item.inputType
                     holder.itemEdit.setText(item.value)
-
-                    // 优化：点击输入框时，自动将光标移动到末尾
-                    holder.itemEdit.setOnClickListener {
-                        holder.itemEdit.setSelection(holder.itemEdit.text?.length ?: 0)
-                    }
-                    // 优化：焦点变化时，如果获得焦点也移动到末尾
+                    holder.itemEdit.setOnClickListener { holder.itemEdit.setSelection(holder.itemEdit.text?.length ?: 0) }
                     holder.itemEdit.setOnFocusChangeListener { _, hasFocus ->
                         if (hasFocus) {
                             holder.itemEdit.setSelection(holder.itemEdit.text?.length ?: 0)
+                            binding.listView.postDelayed({ binding.listView.smoothScrollToPosition(position) }, 300)
                         }
                     }
-
                     val oldWatcher = holder.itemEdit.getTag(R.id.tag_text_watcher) as? TextWatcher
                     holder.itemEdit.removeTextChangedListener(oldWatcher)
                     val textWatcher = object : TextWatcher {
+                        override fun afterTextChanged(s: Editable?) { item.value = s?.toString() }
                         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-                        override fun afterTextChanged(s: Editable?) { item.value = s?.toString() }
                     }
                     holder.itemEdit.setTag(R.id.tag_text_watcher, textWatcher)
                     holder.itemEdit.addTextChangedListener(textWatcher)

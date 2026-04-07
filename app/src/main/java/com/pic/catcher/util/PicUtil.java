@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Locale;
 
 
 public abstract class PicUtil {
@@ -42,6 +43,8 @@ public abstract class PicUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        if (headerBytes == null || headerBytes.length < 2) return fallback;
+        
         if ((headerBytes[0] & 0xFF) == 0xFF && (headerBytes[1] & 0xFF) == 0xD8) {
             return "jpg";
         } else if (headerBytes[0] == (byte) 0x89 && headerBytes[1] == (byte) 0x50 && headerBytes[2] == (byte) 0x4E && headerBytes[3] == (byte) 0x47) {
@@ -65,17 +68,19 @@ public abstract class PicUtil {
         if (data == null || data.length < 12) {
             return false;
         }
-
-        // 检查前4个字节是否为 "RIFF"
         if (data[0] != 'R' || data[1] != 'I' || data[2] != 'F' || data[3] != 'F') {
             return false;
         }
-
-        // 检查第8到第11个字节是否为 "WEBP"
         if (data[8] != 'W' || data[9] != 'E' || data[10] != 'B' || data[11] != 'P') {
             return false;
         }
         return true;
+    }
+
+    public static boolean isPicUrl(String url) {
+        if (TextUtils.isEmpty(url)) return false;
+        String ext = MimeTypeMap.getFileExtensionFromUrl(url);
+        return isPicSuffix(ext);
     }
 
     public static String getImageType(String fileName, byte[] data, String fallback) {
@@ -131,6 +136,6 @@ public abstract class PicUtil {
         if (TextUtils.isEmpty(text)) {
             return false;
         }
-        return Regexs.PIC_EXT.matcher(text).find();
+        return Regexs.PIC_EXT.matcher(text.toLowerCase(Locale.ROOT)).find();
     }
 }

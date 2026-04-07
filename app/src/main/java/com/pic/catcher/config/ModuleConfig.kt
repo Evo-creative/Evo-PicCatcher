@@ -40,6 +40,22 @@ class ModuleConfig(var source: JSONObject) {
             source.put("isCatchDrawablePic", value)
         }
 
+    // 新增：抓取底层位图 (Native/createBitmap)
+    var isCatchNativePic: Boolean = true
+        get() = JSONX.optBoolean(source, "isCatchNativePic", true)
+        set(value) {
+            field = value
+            source.put("isCatchNativePic", value)
+        }
+
+    // 新增：抓取硬件渲染内容 (RenderNode)
+    var isCatchRenderNodePic: Boolean = true
+        get() = JSONX.optBoolean(source, "isCatchRenderNodePic", true)
+        set(value) {
+            field = value
+            source.put("isCatchRenderNodePic", value)
+        }
+
     var minSpaceSize = 0
         get() = JSONX.optLong(source, "minSpaceSize", 0).toInt()
         set(value) {
