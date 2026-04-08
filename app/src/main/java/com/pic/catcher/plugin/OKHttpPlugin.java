@@ -47,21 +47,18 @@ public class OKHttpPlugin implements IPlugin {
                             Object body = XposedHelpers2.callMethod(response, "body");
                             if (body == null) return;
 
+                            // 安全增强：对于 Android 系统内置的旧版 OkHttp，readByteArray 会彻底破坏流
+                            // 且反射写回（buffer.write）在很多深度定制系统上无效，会导致宿主闪退。
+                            // 策略调整：如果无法安全获取数据，则跳过网络层拦截，由下游的 BitmapFactory/Glide 拦截器补齐。
+                            // 这样既保证了不闪退，也能抓到图。
+                            
+                            /* 
+                            // 风险代码屏蔽：
                             Object bufferSource = XposedHelpers2.callMethod(body, "source");
-                            if (bufferSource == null) return;
-
-                            // 注意：readByteArray 会消耗掉流，导致原应用无法读取而闪退。
-                            // 在没有 peekSource 的情况下，Hook 这里风险极高。
-                            // 暂时增加 try-catch 保护
-                            Object bytes = XposedHelpers2.callMethod(bufferSource, "readByteArray");
-                            if (bytes != null) {
-                                // 尝试写回（这是一个黑科技，不一定在所有版本生效）
-                                Object buffer = XposedHelpers2.getObjectField(bufferSource, "buffer");
-                                if (buffer != null) {
-                                    XposedHelpers2.callMethod(buffer, "write", bytes);
-                                }
-                                PicExportManager.getInstance().exportByteArray((byte[]) bytes, guessFileEx);
-                            }
+                            Object bytes = XposedHelpers2.callMethod(bufferSource, "readByteArray"); 
+                            ... 
+                            */
+                            
                         } catch (Throwable t) {
                             LogUtil.w("AndroidOkHttp hook error", t);
                         }
@@ -93,8 +90,9 @@ public class OKHttpPlugin implements IPlugin {
                             String guessFileEx = MimeTypeMap.getSingleton().getExtensionFromMimeType(contentType);
                             if (!PicUtil.isPicSuffix(guessFileEx)) return;
 
-                            // OkHttp3 使用 peekBody 是安全的，它不会消耗原始流
-                            Object response2 = XposedHelpers2.callMethod(response, "peekBody", 1024 * 1024 * 5L); // 限制 5MB
+                            // OkHttp3 使用 peekBody 是极其安全的，它通过副本读取，不影响原始 Response 内容
+                            // 限制 10MB 以内，防止大文件导致 OOM
+                            Object response2 = XposedHelpers2.callMethod(response, "peekBody", 1024 * 1024 * 10L);
                             if (response2 != null) {
                                 Object bytes = XposedHelpers2.callMethod(response2, "bytes");
                                 if (bytes instanceof byte[]) {
