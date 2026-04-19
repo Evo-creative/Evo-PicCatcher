@@ -67,8 +67,8 @@ android {
         applicationId "com.evo.piccatcher"
         minSdk 24
         targetSdk TARGET_SDK_VERSION.toInteger()
-        versionCode 43
-        versionName "3.5.12"
+        versionCode 49
+        versionName "4.2.8"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -168,6 +168,8 @@ dependencies {
 //    }
     implementation(deps['com.github.Mingyueyixi.lposed:xposed-api2'])
     implementation(deps['com.github.Mingyueyixi.lposed:plugin'])
+    implementation(deps['dev.rikka.shizuku:api'])
+    implementation(deps['dev.rikka.shizuku:provider'])
     implementation 'com.google.android.material:material:1.13.0'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.core:core-ktx:1.15.0'

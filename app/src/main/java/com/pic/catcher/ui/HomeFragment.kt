@@ -17,6 +17,8 @@ import com.pic.catcher.SelfHook
 import com.pic.catcher.base.BaseFragment
 import com.pic.catcher.databinding.FragmentHomeBinding
 import com.pic.catcher.databinding.ItemInfoRowBinding
+import com.pic.catcher.util.ShellUtil
+import rikka.shizuku.Shizuku
 
 class HomeFragment : BaseFragment() {
     private lateinit var binding: FragmentHomeBinding
@@ -29,9 +31,69 @@ class HomeFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initStatus()
         initInfo()
         initGithub()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        initStatus()
+        initShellStatus()
+    }
+
+    private fun initShellStatus() {
+        val context = context ?: return
+        val isShizukuAvailable = ShellUtil.isShizukuAvailable()
+        val hasPermission = ShellUtil.hasShizukuPermission()
+        val isSui = ShellUtil.isSui()
+
+        if (hasPermission) {
+            val colorContainer = MaterialColors.getColor(context, com.google.android.material.R.attr.colorTertiaryContainer, Color.LTGRAY)
+            val onColorContainer = MaterialColors.getColor(context, com.google.android.material.R.attr.colorOnTertiaryContainer, Color.BLACK)
+
+            binding.shellStatusCard.setCardBackgroundColor(onColorContainer)
+            binding.ivShellStatusIcon.setImageResource(R.drawable.ic_icon_check)
+            binding.ivShellStatusIcon.imageTintList = ColorStateList.valueOf(colorContainer)
+            binding.tvShellStatusTitle.text = "Shell"
+            binding.tvShellStatusTitle.setTextColor(colorContainer)
+            binding.tvShellStatusDesc.text = if (isSui) "Sui 已授权" else "Shizuku 已授权"
+            binding.tvShellStatusDesc.setTextColor(colorContainer)
+            binding.shellStatusCard.setOnClickListener(null)
+        } else {
+            val colorContainer = MaterialColors.getColor(context, com.google.android.material.R.attr.colorErrorContainer, Color.RED)
+            val onColorContainer = MaterialColors.getColor(context, com.google.android.material.R.attr.colorOnErrorContainer, Color.WHITE)
+
+            binding.shellStatusCard.setCardBackgroundColor(colorContainer)
+            binding.ivShellStatusIcon.setImageResource(R.drawable.ic_icon_warning)
+            binding.ivShellStatusIcon.imageTintList = ColorStateList.valueOf(onColorContainer)
+            
+            if (isShizukuAvailable) {
+                binding.tvShellStatusTitle.text = if (isSui) "Sui 未授权" else "Shizuku 未授权"
+                binding.tvShellStatusDesc.text = "点击申请 Shell 授权"
+            } else {
+                binding.tvShellStatusTitle.text = "Shell 服务未运行"
+                binding.tvShellStatusDesc.text = "请启动 Shizuku 或安装 Sui"
+            }
+            
+            binding.tvShellStatusTitle.setTextColor(onColorContainer)
+            binding.tvShellStatusDesc.setTextColor(onColorContainer)
+            
+            binding.shellStatusCard.setOnClickListener {
+                if (isShizukuAvailable) {
+                    try {
+                        Shizuku.requestPermission(1001)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                } else {
+                    // 如果连服务都没开启，引导去 Shizuku 官网或提示
+                    try {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://shizuku.rikka.app/download/"))
+                        startActivity(intent)
+                    } catch (ignored: Exception) {}
+                }
+            }
+        }
     }
 
     private fun initStatus() {
@@ -70,7 +132,7 @@ class HomeFragment : BaseFragment() {
             binding.tvStatusTitle.setTextColor(onErrorColor)
             binding.tvVersion.setTextColor(onErrorColor)
         }
-        binding.tvVersion.text = "版本：$versionName"
+        binding.tvVersion.text = "版本: $versionName"
     }
 
     private fun initInfo() {

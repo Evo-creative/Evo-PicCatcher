@@ -19,7 +19,7 @@ import java.util.Locale
 class LogProvider : ContentProvider() {
 
     companion object {
-        const val AUTHORITY = "com.evo.piccatcher.logprovider"
+        const val AUTHORITY = "com.pic.catcher.logprovider"
         
         @JvmField
         val CONTENT_URI: Uri = Uri.parse("content://$AUTHORITY")
@@ -39,14 +39,64 @@ class LogProvider : ContentProvider() {
     }
 
     override fun call(method: String, arg: String?, extras: Bundle?): Bundle? {
-        if (method == METHOD_LOG) {
-            val msg = extras?.getString(KEY_MSG)
-            val pkg = extras?.getString(KEY_PKG)
-            if (msg != null) {
-                writeLogToFile(pkg, msg)
+        when (method) {
+            METHOD_LOG -> {
+                val msg = extras?.getString(KEY_MSG)
+                val pkg = extras?.getString(KEY_PKG)
+                if (msg != null) {
+                    writeLogToFile(pkg, msg)
+                }
+            }
+            "move_pic" -> {
+                val cachePath = extras?.getString("cache_path")
+                val pkg = extras?.getString("pkg")
+                val fileName = extras?.getString("name")
+                if (cachePath != null && pkg != null && fileName != null) {
+                    val success = movePicViaShell(cachePath, pkg, fileName)
+                    return Bundle().apply { putBoolean("result", success) }
+                }
             }
         }
         return Bundle().apply { putBoolean("result", true) }
+    }
+
+    private fun movePicViaShell(cachePath: String, pkg: String, fileName: String): Boolean {
+        val baseDir = context?.getExternalFilesDir("Pictures") ?: return false
+        val targetDir = File(baseDir, pkg)
+        // 1. 先用 Java 创建目标目录 (模块对自己的 Android/data 目录有原生权限)
+        if (!targetDir.exists()) targetDir.mkdirs()
+
+        val targetPath = File(targetDir, fileName).absolutePath
+
+        // 2. 执行 Shell 搬运 (mv 命令成功后源文件会自动删除)
+        // 使用 -f 强制覆盖，确保搬运顺畅
+        val moveCmd = "mv -f \"$cachePath\" \"$targetPath\""
+        val result = com.pic.catcher.util.ShellUtil.runCommand(moveCmd)
+        
+        if (result.isSuccess) {
+            Log.d(TAG, "Successfully moved file via shell: $fileName")
+            return true
+        } else {
+            Log.e(TAG, "Shell move failed: ${result.stderr}, trying fallback...")
+            // 3. 如果 Shell 失败，尝试 Java 兜底 (由于分区存储限制，这在 Android 11+ 可能会失败，但仍作为最后尝试)
+            return try {
+                val cacheFile = File(cachePath)
+                val targetFile = File(targetPath)
+                if (cacheFile.exists()) {
+                    // 只有当重命名或复制成功后，才删除缓存
+                    if (cacheFile.renameTo(targetFile)) {
+                        true
+                    } else {
+                        cacheFile.copyTo(targetFile, overwrite = true)
+                        cacheFile.delete() // 显式删除缓存
+                        true
+                    }
+                } else false
+            } catch (e: Exception) {
+                Log.e(TAG, "All move methods failed for $fileName", e)
+                false
+            }
+        }
     }
 
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {

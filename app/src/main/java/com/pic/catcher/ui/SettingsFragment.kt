@@ -1,5 +1,6 @@
 package com.pic.catcher.ui
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
@@ -10,10 +11,8 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import com.lu.magic.util.ToastUtil
 import com.pic.catcher.R
 import com.pic.catcher.adapter.BindingListAdapter
-import com.pic.catcher.adapter.CommonListAdapter
 import com.pic.catcher.base.BaseFragment
 import com.pic.catcher.bean.EditItem
 import com.pic.catcher.bean.ItemType
@@ -27,10 +26,12 @@ import com.pic.catcher.databinding.ItemConfigSpinnerBinding
 import com.pic.catcher.databinding.ItemConfigSwitchBinding
 import com.pic.catcher.databinding.ItemConfigTextBinding
 import com.pic.catcher.ui.config.PicFormat
+import com.pic.catcher.util.ShellUtil
 import com.pic.catcher.util.ext.dp
 import com.pic.catcher.util.ext.setPadding
 import com.pic.catcher.util.ext.toDoubleElse
 import com.pic.catcher.util.ext.toIntElse
+import rikka.shizuku.Shizuku
 
 class SettingsFragment : BaseFragment() {
 
@@ -39,9 +40,42 @@ class SettingsFragment : BaseFragment() {
     private lateinit var moduleConfig: ModuleConfig
     private lateinit var mConfigSourceText: String
 
+    // Shizuku 权限请求监听器
+    private val ON_REQUEST_PERMISSION_RESULT = Shizuku.OnRequestPermissionResultListener { requestCode, grantResult ->
+        if (requestCode == 1001) {
+            if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(context, "Shizuku 权限已授予", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "Shizuku 权限被拒绝", Toast.LENGTH_SHORT).show()
+            }
+            mAdapter.notifyDataSetChanged()
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        try {
+            Shizuku.addRequestPermissionResultListener(ON_REQUEST_PERMISSION_RESULT)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        try {
+            Shizuku.removeRequestPermissionResultListener(ON_REQUEST_PERMISSION_RESULT)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (::moduleConfig.isInitialized && moduleConfig.source.toString() != mConfigSourceText) {
+            moduleConfig.save()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -52,82 +86,117 @@ class SettingsFragment : BaseFragment() {
         mAdapter = ConfigListAdapter().apply {
             val picFormatList = listOf(PicFormat.WEBP, PicFormat.JPG, PicFormat.PNG)
             val picSelectFormatIndex = picFormatList.indexOfFirst { it == moduleConfig.picDefaultSaveFormat }
-            setData(
-                listOf(
-                    SwitchItem(getString(R.string.config_catch_net_pic), moduleConfig.isCatchNetPic).apply {
-                        addPropertyChangeListener { 
-                            moduleConfig.isCatchNetPic = checked 
-                            updateConfig()
-                        }
-                    },
-                    SwitchItem(getString(R.string.config_catch_webview_pic), moduleConfig.isCatchWebViewPic).apply {
-                        addPropertyChangeListener { 
-                            moduleConfig.isCatchWebViewPic = checked 
-                            updateConfig()
-                        }
-                    },
-                    SwitchItem(getString(R.string.config_catch_glide_pic), moduleConfig.isCatchGlidePic).apply {
-                        addPropertyChangeListener { 
-                            moduleConfig.isCatchGlidePic = checked 
-                            updateConfig()
-                        }
-                    },
-                    SwitchItem(
-                        getString(R.string.config_save_to_internal),
-                        moduleConfig.isSaveToInternal,
-                        if (moduleConfig.isSaveToInternal) getString(R.string.config_save_to_internal_on) else getString(R.string.config_save_to_internal_off)
-                    ).apply {
-                        addPropertyChangeListener {
-                            if ("checked" == it.propertyName) {
-                                moduleConfig.isSaveToInternal = checked
-                                desc = if (checked) getString(R.string.config_save_to_internal_on) else getString(R.string.config_save_to_internal_off)
-                                mAdapter.notifyDataSetChanged()
-                                updateConfig()
+            
+            val items = mutableListOf<ItemType>(
+                SwitchItem(getString(R.string.config_catch_net_pic), moduleConfig.isCatchNetPic).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.isCatchNetPic = checked 
+                        updateConfig()
+                    }
+                },
+                SwitchItem(getString(R.string.config_catch_webview_pic), moduleConfig.isCatchWebViewPic).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.isCatchWebViewPic = checked 
+                        updateConfig()
+                    }
+                },
+                SwitchItem(getString(R.string.config_catch_glide_pic), moduleConfig.isCatchGlidePic).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.isCatchGlidePic = checked 
+                        updateConfig()
+                    }
+                },
+                SwitchItem(
+                    getString(R.string.config_save_to_internal),
+                    moduleConfig.isSaveToInternal,
+                    if (moduleConfig.isSaveToInternal) getString(R.string.config_save_to_internal_on) else getString(R.string.config_save_to_internal_off)
+                ).apply {
+                    addPropertyChangeListener {
+                        if ("checked" == it.propertyName) {
+                            moduleConfig.isSaveToInternal = checked
+                            desc = if (checked) getString(R.string.config_save_to_internal_on) else getString(R.string.config_save_to_internal_off)
+                            
+                            if (checked && !ShellUtil.hasShizukuPermission()) {
+                                if (ShellUtil.isShizukuAvailable()) {
+                                    try {
+                                        Shizuku.requestPermission(1001)
+                                    } catch (e: Throwable) {
+                                        Toast.makeText(context, "请求 Shizuku 权限失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    }
+                                } else {
+                                    Toast.makeText(context, "未检测到 Shizuku，将尝试使用 Root 权限（需要系统已 Root）", Toast.LENGTH_LONG).show()
+                                }
                             }
-                        }
-                    },
-                    EditItem(
-                        getString(R.string.config_min_space_size),
-                        moduleConfig.minSpaceSize.toString(),
-                        InputType.TYPE_CLASS_NUMBER
-                    ).apply {
-                        addPropertyChangeListener { 
-                            moduleConfig.minSpaceSize = value.toIntElse(0) 
+                            
+                            mAdapter.notifyDataSetChanged()
                             updateConfig()
                         }
-                    },
-                    EditItem(
-                        getString(R.string.config_max_log_size),
-                        moduleConfig.maxLogSizeMiB.toString(),
-                        InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-                    ).apply {
-                        addPropertyChangeListener { 
-                            moduleConfig.maxLogSizeMiB = value.toDoubleElse(2.0)
-                            updateConfig()
-                        }
-                    },
-                    SpinnerItem(
-                        getString(R.string.config_save_pic_default_format),
-                        picFormatList,
-                        picSelectFormatIndex
-                    ).apply {
-                        addPropertyChangeListener { 
-                            moduleConfig.picDefaultSaveFormat = picFormatList[selectedIndex] 
-                            updateConfig()
-                        }
-                    },
-                )
+                    }
+                }
             )
+
+            // 添加 Shizuku 状态显示
+            items.add(TextItem("Shizuku 状态", if (ShellUtil.hasShizukuPermission()) "已授权" else if (ShellUtil.isShizukuAvailable()) "未授权 (点击申请)" else "未运行"))
+
+            items.addAll(listOf(
+                EditItem(
+                    getString(R.string.config_min_space_size),
+                    moduleConfig.minSpaceSize.toString(),
+                    InputType.TYPE_CLASS_NUMBER
+                ).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.minSpaceSize = value.toIntElse(0) 
+                        updateConfig()
+                    }
+                },
+                EditItem(
+                    getString(R.string.config_max_log_size),
+                    moduleConfig.maxLogSizeMiB.toString(),
+                    InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+                ).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.maxLogSizeMiB = value.toDoubleElse(2.0)
+                        updateConfig()
+                    }
+                },
+                SpinnerItem(
+                    getString(R.string.config_save_pic_default_format),
+                    picFormatList,
+                    picSelectFormatIndex
+                ).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.picDefaultSaveFormat = picFormatList[selectedIndex] 
+                        updateConfig()
+                    }
+                }
+            ))
+            
+            setData(items)
         }
         binding.listView.adapter = mAdapter
+        
+        // 处理 TextItem 点击申请权限
+        binding.listView.setOnItemClickListener { _, _, position, _ ->
+            val item = mAdapter.getItem(position)
+            if (item is TextItem && item.name == "Shizuku 状态") {
+                if (ShellUtil.isShizukuAvailable()) {
+                    if (!ShellUtil.hasShizukuPermission()) {
+                        try {
+                            Shizuku.requestPermission(1001)
+                        } catch (e: Throwable) {
+                            Toast.makeText(context, "请求 Shizuku 权限失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        Toast.makeText(context, "Shizuku 权限已授予", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(context, "Shizuku 未运行", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     private fun updateConfig() {
-        moduleConfig.save()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
         moduleConfig.save()
     }
 
@@ -171,11 +240,9 @@ class SettingsFragment : BaseFragment() {
                     holder.itemEdit.inputType = item.inputType
                     holder.itemEdit.setText(item.value)
 
-                    // 优化：点击输入框时，自动将光标移动到末尾
                     holder.itemEdit.setOnClickListener {
                         holder.itemEdit.setSelection(holder.itemEdit.text?.length ?: 0)
                     }
-                    // 优化：焦点变化时，如果获得焦点也移动到末尾
                     holder.itemEdit.setOnFocusChangeListener { _, hasFocus ->
                         if (hasFocus) {
                             holder.itemEdit.setSelection(holder.itemEdit.text?.length ?: 0)

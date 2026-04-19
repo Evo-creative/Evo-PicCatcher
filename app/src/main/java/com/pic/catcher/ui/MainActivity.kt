@@ -1,6 +1,7 @@
 package com.pic.catcher.ui
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.ViewCompat
@@ -12,11 +13,17 @@ import com.pic.catcher.R
 import com.pic.catcher.base.BaseActivity
 import com.pic.catcher.databinding.LayoutMainBinding
 import com.pic.catcher.route.AppRouter
+import com.pic.catcher.util.ShellUtil
+import rikka.shizuku.Shizuku
 import com.pic.catcher.ui.vm.AppUpdateViewModel
 import com.pic.catcher.base.ViewModelProviders
 
 class MainActivity : BaseActivity() {
     private lateinit var binding: LayoutMainBinding
+
+    private val binderReceivedListener = Shizuku.OnBinderReceivedListener {
+        checkShizukuPermission()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // 启用 Material You 动态取色
@@ -62,6 +69,25 @@ class MainActivity : BaseActivity() {
 
         ViewModelProviders.from(this).get(AppUpdateViewModel::class.java).checkOnEnter(this)
         handleDeeplinkRoute(intent)
+        
+        Shizuku.addBinderReceivedListenerSticky(binderReceivedListener)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Shizuku.removeBinderReceivedListener(binderReceivedListener)
+    }
+
+    private fun checkShizukuPermission() {
+        if (Shizuku.pingBinder()) {
+            if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
+                try {
+                    Shizuku.requestPermission(1001)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
     }
 
     private fun switchFragment(clazz: Class<out Fragment>) {

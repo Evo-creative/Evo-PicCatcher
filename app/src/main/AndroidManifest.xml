@@ -3,11 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Shizuku/Sui 权限 -->
+    <uses-permission android:name="moe.shizuku.privileged.api.permission.RECEIVE_SUI_BINDER" />
 
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
         </intent>
+        <package android:name="moe.shizuku.privileged.api" />
     </queries>
 
     <application
@@ -25,10 +28,24 @@
 
         <provider
             android:name="com.pic.catcher.provider.LogProvider"
-            android:authorities="com.evo.piccatcher.logprovider"
+            android:authorities="com.pic.catcher.logprovider"
             android:exported="true"
             android:enabled="true"
-            tools:ignore="ExportedContentProvider" />
+            tools:ignore="ExportedContentProvider">
+            <intent-filter>
+                <action android:name="android.content.action.LOG_PROVIDER" />
+            </intent-filter>
+        </provider>
+
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:enabled="true"
+            android:exported="true" />
+
+        <meta-data
+            android:name="rikka.shizuku.api.VERSION"
+            android:value="13" />
 
         <meta-data android:name="xposedmodule" android:value="true" />
         <meta-data android:name="xposeddescription" android:value="@string/app_xposed_description" />

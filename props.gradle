@@ -35,7 +35,9 @@ ext {
 
             'com.github.Mingyueyixi:frame-multi-preference'   : 'com.github.Mingyueyixi:frame-multi-preference:main-SNAPSHOT',
             'com.github.Mingyueyixi.lposed:xposed-api2'       : 'com.github.Mingyueyixi.lposed:xposed-api2:a88cf0c651',
-            'com.github.Mingyueyixi.lposed:plugin'            : 'com.github.Mingyueyixi.lposed:plugin:a88cf0c651'
+            'com.github.Mingyueyixi.lposed:plugin'            : 'com.github.Mingyueyixi.lposed:plugin:a88cf0c651',
+            'dev.rikka.shizuku:api'                           : 'dev.rikka.shizuku:api:13.1.5',
+            'dev.rikka.shizuku:provider'                      : 'dev.rikka.shizuku:provider:13.1.5'
 
     ]
 }
