@@ -4,20 +4,22 @@
 
 本项目仓库地址[Evo-PicCatcher](https://github.com/Evo-creative/Evo-PicCatcher)
 
+请注意Xposed模块仓库的仓库仅发布Release,不会提交源码
+
 本项目基于 `https://github.com/Mingyueyixi/PicCatcher` 修改与扩展。
 
 ## 项目介绍
 
-Evo-PicCatcher 是一个用于抓取应用运行过程中所显示图片的工具，适用于调试、分析与自动化等场景。
+Evo-PicCatcher 是一个用于抓取应用运行过程中所显示图片的工具。
 
-如果有新的功能建议，欢迎提交 Issue，作者会根据情况进行实现。
+如果有新的功能建议，欢迎提交 Issue，我会根据情况进行实现。
 
 ### 目前宿主app权限问题暂时未解决，遇到权限问题会将图片保存到外部位置`Pictures/PicCatcher`
 
 ## 使用说明
 在LSPosed管理器中选择作用域app
 
-当作用域内的app运行时显示图片就会被抓取并保存(目前抓取方式只能覆盖到极大部分内容，请见谅)
+当作用域内的app运行时显示图片就会被抓取并保存(目前抓取方式只能覆盖到极大部分内容，之后会慢慢完善的)
 
 内部保存位置为`Android/data/com.evo.piccatcher/files/Pictures`，外部保存位置为`Pictures/PicCatcher`
 
