@@ -13,7 +13,7 @@ import android.os.HandlerThread
 import android.os.IBinder
 import android.util.Log
 import com.pic.catcher.config.ModuleConfig
-import com.pic.catcher.util.ShellUtil
+import com.pic.catcher.util.RootUtil
 
 /**
  * 自动搬运服务 - 优化版
@@ -39,8 +39,8 @@ class PicWatcherService : Service() {
             } catch (e: Exception) {
                 Log.e(TAG, "Harvest error", e)
             } finally {
-                // 将扫描频率降低到 60 秒，减少对系统的打扰和电量消耗
-                serviceHandler.postDelayed(this, 60000)
+                // 将扫描频率设置为 15 秒，更及时地搬运图片
+                serviceHandler.postDelayed(this, 15000)
             }
         }
     }
@@ -78,38 +78,46 @@ class PicWatcherService : Service() {
 
     /**
      * 使用单条复杂的 Shell 脚本完成批量检测和搬运
-     * 避免了为每个包名重复创建 su 进程导致的卡顿
      */
     private fun performBatchHarvest() {
-        val authType = ModuleConfig.getInstance().shellAuthType
-        if (authType.isEmpty()) return
+        if (!RootUtil.hasRootPermission()) return
 
         val isInternal = ModuleConfig.getInstance().isSaveToInternal
         val targetRoot = if (isInternal) MODULE_PRIVATE_ROOT else PUBLIC_ROOT
 
-        // 核心脚本：
-        // 1. 查找所有 Android/data 下的 PicCatcher 缓存目录
-        // 2. 如果目录下有文件，则创建目标目录并移动文件
-        // 3. 这里的 2>/dev/null 是为了防止没有权限的目录产生报错干扰
+        // 核心脚本优化：
+        // 1. 扫描 Android/data 和 /data/data (某些受保护 App)
+        // 2. 只有发现文件才进行搬运，搬运成功后才删除源文件
         val script = """
-            DATA_ROOT="/sdcard/Android/data"
             TARGET_BASE="$targetRoot"
             mkdir -p "${"$"}TARGET_BASE"
-            touch "${"$"}TARGET_BASE/.nomedia"
             
-            for dir in ${"$"}DATA_ROOT/*/cache/PicCatcher; do
-                [ -d "${"$"}dir" ] || continue
-                # 检查目录是否为空
-                if [ -n "$(ls -A "${"$"}dir" 2>/dev/null)" ]; then
-                    pkg=$(echo "${"$"}dir" | cut -d'/' -f5)
-                    dest="${"$"}TARGET_BASE/${"$"}pkg"
-                    mkdir -p "${"$"}dest"
-                    cp -f "${"$"}dir"/* "${"$"}dest/" 2>/dev/null && rm -f "${"$"}dir"/* 2>/dev/null
-                fi
-            done
+            # 定义扫描函数
+            scan_and_move() {
+                local base_dir=${"$"}1
+                for dir in ${"$"}base_dir/*/cache/PicCatcher; do
+                    [ -d "${"$"}dir" ] || continue
+                    files=$(ls -A "${"$"}dir" 2>/dev/null)
+                    if [ -n "${"$"}files" ]; then
+                        pkg=$(echo "${"$"}dir" | awk -F'/' '{print $(NF-2)}')
+                        dest="${"$"}TARGET_BASE/${"$"}pkg"
+                        mkdir -p "${"$"}dest"
+                        if cp -Rf "${"$"}dir"/* "${"$"}dest/" 2>/dev/null; then
+                            rm -rf "${"$"}dir"/*
+                            echo "Harvested from ${"$"}pkg"
+                        fi
+                    fi
+                done
+            }
+
+            scan_and_move "/sdcard/Android/data"
+            scan_and_move "/data/data"
         """.trimIndent()
 
-        ShellUtil.runCommand(script)
+        val result = RootUtil.runCommand(script)
+        if (result.stdout.isNotEmpty()) {
+            Log.d(TAG, result.stdout)
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_STICKY

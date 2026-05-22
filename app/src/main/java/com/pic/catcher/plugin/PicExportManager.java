@@ -28,22 +28,16 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 图片导出管理器 - 极致性能优化版 (针对 Pixiv 等高负载 App)
- * 1. 串行化后台处理：使用单线程池，确保不抢占多个 CPU 核心。
- * 2. 优先级下调：后台线程设置为 MIN_PRIORITY，让位给宿主渲染。
- * 3. 任务过载丢弃：如果队列积压超过 100 个任务，自动丢弃旧任务。
- * 4. 零锁机制：移除 synchronized(bitmap)，避免阻塞 RenderThread 的读操作。
- * 5. 对象去重：LRU 记录已处理的对象，防止重复导出产生的 IO 开销。
+ * 图片导出管理器
  */
 public class PicExportManager {
     private static final String TAG = "PicCatcher_Host";
     private static PicExportManager sInstance;
     private File mCachedCacheDir;
     
-    // 专属串行化工作线程，避免对系统 IO 线程池产生级联阻塞
     private static final ExecutorService sWorker = new ThreadPoolExecutor(1, 1,
             0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(100),
+            new LinkedBlockingQueue<>(150),
             r -> {
                 Thread t = new Thread(r, "PicExportWorker");
                 t.setPriority(Thread.MIN_PRIORITY);
@@ -52,7 +46,6 @@ public class PicExportManager {
             new ThreadPoolExecutor.DiscardOldestPolicy() 
     );
 
-    // 记录最近处理过的对象，防止重复 Hook 产生的性能损耗
     private final LruCache<Integer, Boolean> mProcessedIdCache = new LruCache<>(200);
 
     public synchronized static PicExportManager getInstance() {
@@ -84,15 +77,11 @@ public class PicExportManager {
     public void exportBitmap(Bitmap bitmap) {
         if (bitmap == null || bitmap.isRecycled()) return;
         
-        // 1. 过滤小尺寸（头像、小标、表情包），大幅减轻 Pixiv 列表加载负担
-        if (bitmap.getWidth() < 300 || bitmap.getHeight() < 300) return;
-        
-        // 2. 去重过滤
+        // 去重过滤
         int identity = System.identityHashCode(bitmap);
         if (mProcessedIdCache.get(identity) != null) return;
         mProcessedIdCache.put(identity, true);
 
-        // 3. 投递任务
         sWorker.execute(() -> {
             try {
                 if (bitmap.isRecycled()) return;
@@ -102,20 +91,16 @@ public class PicExportManager {
                                          (PicFormat.PNG.equals(format) ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.WEBP);
                 
                 try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-                    // ZERO-LOCK 压缩：直接读取。
-                    // 虽然可能遇到位图正在改变导致的异常，但这种概率极低且被捕获，
-                    // 收益是彻底消除了对 RenderThread 的锁竞争。
                     bitmap.compress(cf, 85, bos); 
                     byte[] bytes = bos.toByteArray();
                     
-                    if (bytes.length < 10240) return; // 10KB 过滤
+                    // 仅使用配置中的过滤
+                    if (ModuleConfig.isLessThanMinSize((long) bytes.length)) return;
                     
                     String fileName = Md5Util.get(bytes) + "." + format;
                     writeToHostCache(bytes, fileName);
                 }
-            } catch (Throwable ignored) {
-                // 捕获所有可能的异常，确保宿主稳如老狗
-            }
+            } catch (Throwable ignored) {}
         });
     }
 
@@ -123,7 +108,8 @@ public class PicExportManager {
      * 导出字节数组 (通用)
      */
     public void exportByteArray(final byte[] dataBytes, String lastName) {
-        if (dataBytes == null || dataBytes.length < 20480) return; // 20KB 过滤
+        if (dataBytes == null) return;
+        if (ModuleConfig.isLessThanMinSize((long) dataBytes.length)) return;
         
         int identity = System.identityHashCode(dataBytes);
         if (mProcessedIdCache.get(identity) != null) return;
@@ -140,7 +126,9 @@ public class PicExportManager {
     }
 
     public void exportBitmapFile(File file) {
-        if (file == null || !file.exists() || file.length() < 20480) return;
+        if (file == null || !file.exists()) return;
+        if (ModuleConfig.isLessThanMinSize(file.length())) return;
+        
         sWorker.execute(() -> {
             try (FileInputStream fis = new FileInputStream(file);
                  ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
@@ -153,7 +141,9 @@ public class PicExportManager {
     }
 
     private void exportByteArrayInternal(byte[] data, String suffix) {
-        if (data == null || data.length < 20480) return;
+        if (data == null) return;
+        if (ModuleConfig.isLessThanMinSize((long) data.length)) return;
+        
         String ext = TextUtils.isEmpty(suffix) ? PicUtil.detectImageType(data, "bin") : suffix;
         if (!ext.startsWith(".")) ext = "." + ext;
         String fileName = Md5Util.get(data) + ext;
@@ -170,7 +160,10 @@ public class PicExportManager {
         try (FileOutputStream fos = new FileOutputStream(cacheFile)) {
             fos.write(data);
             fos.flush();
-        } catch (Exception ignored) {}
+            Log.i(TAG, "Successfully captured to: " + cacheFile.getAbsolutePath());
+        } catch (Exception e) {
+            Log.e(TAG, "Write failed: " + fileName, e);
+        }
     }
 
     public void exportUrlIfNeed(String url) {

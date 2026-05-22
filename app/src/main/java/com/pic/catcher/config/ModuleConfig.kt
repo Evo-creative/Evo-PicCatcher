@@ -76,6 +76,20 @@ class ModuleConfig(var source: JSONObject) {
             source.put("shellAuthType", value)
         }
 
+    var rootStatus: String = "UNKNOWN"
+        get() = JSONX.optString(source, "rootStatus", "UNKNOWN") ?: "UNKNOWN"
+        set(value) {
+            field = value
+            source.put("rootStatus", value)
+        }
+
+    var suManagerName: String = "Root"
+        get() = JSONX.optString(source, "suManagerName", "Root") ?: "Root"
+        set(value) {
+            field = value
+            source.put("suManagerName", value)
+        }
+
     fun toJson(): String {
         return source.toString()
     }

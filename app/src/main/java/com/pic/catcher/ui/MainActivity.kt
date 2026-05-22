@@ -14,10 +14,12 @@ import com.pic.catcher.R
 import com.pic.catcher.base.BaseActivity
 import com.pic.catcher.databinding.LayoutMainBinding
 import com.pic.catcher.route.AppRouter
-import com.pic.catcher.util.ShellUtil
+import com.pic.catcher.util.RootUtil
 import com.pic.catcher.service.PicWatcherService
 import com.pic.catcher.ui.vm.AppUpdateViewModel
 import com.pic.catcher.base.ViewModelProviders
+import com.pic.catcher.config.ModuleConfig
+import com.lu.magic.util.thread.AppExecutor
 
 class MainActivity : BaseActivity() {
     private lateinit var binding: LayoutMainBinding
@@ -67,6 +69,9 @@ class MainActivity : BaseActivity() {
         ViewModelProviders.from(this).get(AppUpdateViewModel::class.java).checkOnEnter(this)
         handleDeeplinkRoute(intent)
         
+        // 启动时检测一次 Root 状态
+        checkRootOnStart()
+        
         // 显式启动图片监控搬运服务
         Log.wtf("PicWatcher", "MainActivity: Attempting to start PicWatcherService")
         try {
@@ -113,6 +118,20 @@ class MainActivity : BaseActivity() {
             binding.root.post {
                 AppRouter.route(this, it.toString())
             }
+        }
+    }
+
+    private fun checkRootOnStart() {
+        AppExecutor.io().execute {
+            val result = RootUtil.checkRootStatus()
+            val config = ModuleConfig.getInstance()
+            config.rootStatus = result.status.name
+            config.suManagerName = result.suName
+            // 如果之前没设置过授权方式，且现在授权成功了，默认选上 Root
+            if (config.shellAuthType.isEmpty() && result.status == RootUtil.Status.AUTHORIZED) {
+                config.shellAuthType = "Root"
+            }
+            config.save()
         }
     }
 }

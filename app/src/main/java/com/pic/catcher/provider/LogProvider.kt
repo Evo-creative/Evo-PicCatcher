@@ -71,7 +71,7 @@ class LogProvider : ContentProvider() {
         // 2. 执行 Shell 搬运 (mv 命令成功后源文件会自动删除)
         // 使用 -f 强制覆盖，确保搬运顺畅
         val moveCmd = "mv -f \"$cachePath\" \"$targetPath\""
-        val result = com.pic.catcher.util.ShellUtil.runCommand(moveCmd)
+        val result = com.pic.catcher.util.RootUtil.runCommand(moveCmd)
         
         if (result.isSuccess) {
             Log.d(TAG, "Successfully moved file via shell: $fileName")

@@ -26,7 +26,7 @@ import com.pic.catcher.databinding.ItemConfigSpinnerBinding
 import com.pic.catcher.databinding.ItemConfigSwitchBinding
 import com.pic.catcher.databinding.ItemConfigTextBinding
 import com.pic.catcher.ui.config.PicFormat
-import com.pic.catcher.util.ShellUtil
+import com.pic.catcher.util.RootUtil
 import com.pic.catcher.util.ext.dp
 import com.pic.catcher.util.ext.setPadding
 import com.pic.catcher.util.ext.toDoubleElse
@@ -105,7 +105,13 @@ class SettingsFragment : BaseFragment() {
             )
 
             // 添加授权状态显示
-            items.add(TextItem("授权状态", if (ShellUtil.hasRootPermission()) "Root 已授权" else "未授权 (请到首页授权)"))
+            val authStatus = when (moduleConfig.rootStatus) {
+                "AUTHORIZED" -> "${moduleConfig.suManagerName} 已授权"
+                "DENIED" -> "已拒绝 (${moduleConfig.suManagerName})"
+                "NOT_FOUND" -> "Root 未授权"
+                else -> "未授权 (请到首页授权)"
+            }
+            items.add(TextItem("授权状态", authStatus))
 
             items.addAll(listOf(
                 EditItem(
@@ -148,7 +154,7 @@ class SettingsFragment : BaseFragment() {
         binding.listView.setOnItemClickListener { _, _, position, _ ->
             val item = mAdapter.getItem(position)
             if (item is TextItem && item.name == "授权状态") {
-                if (ShellUtil.hasRootPermission()) {
+                if (RootUtil.hasRootPermission()) {
                     Toast.makeText(context, "Root 权限正常", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(context, "请前往首页点击“激活”或“申请权限”", Toast.LENGTH_SHORT).show()
