@@ -5,147 +5,167 @@ import com.pic.catcher.util.JSONX
 import com.pic.catcher.util.LocalKVUtil
 import com.pic.catcher.util.ext.toJSONObject
 import org.json.JSONObject
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.concurrent.thread
 
-/**
- * @author Lu
- * @date 2025/1/5 20:02
- * @description
- */
 class ModuleConfig(var source: JSONObject) {
-    var isCatchGlidePic: Boolean = true
+    var isCatchGlidePic: Boolean
         get() = JSONX.optBoolean(source, "isCatchGlidePic", true)
-        set(value) {
-            field = value
-            source.put("isCatchGlidePic", value)
-        }
+        set(value) { source.put("isCatchGlidePic", value) }
 
-    var isCatchWebViewPic: Boolean = true
+    var isCatchWebViewPic: Boolean
         get() = JSONX.optBoolean(source, "isCatchWebViewPic", true)
-        set(value) {
-            field = value
-            source.put("isCatchWebViewPic", value)
-        }
+        set(value) { source.put("isCatchWebViewPic", value) }
 
-    var isCatchNetPic: Boolean = true
+    var isCatchNetPic: Boolean
         get() = JSONX.optBoolean(source, "isCatchNetPic", true)
-        set(value) {
-            field = value
-            source.put("isCatchNetPic", value)
-        }
+        set(value) { source.put("isCatchNetPic", value) }
 
-    var isCatchDrawablePic: Boolean = true
+    var isCatchDrawablePic: Boolean
         get() = JSONX.optBoolean(source, "isCatchDrawablePic", true)
-        set(value) {
-            field = value
-            source.put("isCatchDrawablePic", value)
-        }
+        set(value) { source.put("isCatchDrawablePic", value) }
 
-    var minSpaceSize = 0
+    var isCatchBitmapPic: Boolean
+        get() = JSONX.optBoolean(source, "isCatchBitmapPic", true)
+        set(value) { source.put("isCatchBitmapPic", value) }
+
+    var isCatchFrescoPic: Boolean
+        get() = JSONX.optBoolean(source, "isCatchFrescoPic", true)
+        set(value) { source.put("isCatchFrescoPic", value) }
+
+    var isCatchCanvasPic: Boolean
+        get() = JSONX.optBoolean(source, "isCatchCanvasPic", true)
+        set(value) { source.put("isCatchCanvasPic", value) }
+
+    var isCatchMoviePic: Boolean
+        get() = JSONX.optBoolean(source, "isCatchMoviePic", true)
+        set(value) { source.put("isCatchMoviePic", value) }
+
+    var isCatchImageViewPic: Boolean
+        get() = JSONX.optBoolean(source, "isCatchImageViewPic", true)
+        set(value) { source.put("isCatchImageViewPic", value) }
+
+    var isCatchImageDecoderPic: Boolean
+        get() = JSONX.optBoolean(source, "isCatchImageDecoderPic", true)
+        set(value) { source.put("isCatchImageDecoderPic", value) }
+
+    var isCatchCoilPic: Boolean
+        get() = JSONX.optBoolean(source, "isCatchCoilPic", true)
+        set(value) { source.put("isCatchCoilPic", value) }
+
+    var isCatchNativeBitmapPic: Boolean
+        get() = JSONX.optBoolean(source, "isCatchNativeBitmapPic", true)
+        set(value) { source.put("isCatchNativeBitmapPic", value) }
+
+    var isCatchFilePic: Boolean
+        get() = JSONX.optBoolean(source, "isCatchFilePic", true)
+        set(value) { source.put("isCatchFilePic", value) }
+
+    var isCatchRenderNodePic: Boolean
+        get() = JSONX.optBoolean(source, "isCatchRenderNodePic", true)
+        set(value) { source.put("isCatchRenderNodePic", value) }
+
+    var isCatchSurfacePic: Boolean
+        get() = JSONX.optBoolean(source, "isCatchSurfacePic", true)
+        set(value) { source.put("isCatchSurfacePic", value) }
+
+    var isCatchHardwareRendererPic: Boolean
+        get() = JSONX.optBoolean(source, "isCatchHardwareRendererPic", true)
+        set(value) { source.put("isCatchHardwareRendererPic", value) }
+
+    var minSpaceSize: Int
         get() = JSONX.optLong(source, "minSpaceSize", 0).toInt()
-        set(value) {
-            field = value
-            source.put("minSpaceSize", value)
-        }
+        set(value) { source.put("minSpaceSize", value) }
 
-    // 修改：日志最大限制改为 Double 以支持小数 (MiB)
-    var maxLogSizeMiB = 2.0
+    var maxLogSizeMiB: Double
         get() = JSONX.optDouble(source, "maxLogSizeMiB", 2.0)
-        set(value) {
-            field = value
-            source.put("maxLogSizeMiB", value)
-        }
+        set(value) { source.put("maxLogSizeMiB", value) }
 
-    var isSaveToInternal: Boolean = false
+    var isSaveToInternal: Boolean
         get() = JSONX.optBoolean(source, "isSaveToInternal", false)
-        set(value) {
-            field = value
-            source.put("isSaveToInternal", value)
-        }
+        set(value) { source.put("isSaveToInternal", value) }
 
-    var picDefaultSaveFormat: String = "webp"
+    var picDefaultSaveFormat: String
         get() = JSONX.optString(source, "picDefaultSaveFormat", "webp") ?: "webp"
-        set(value) {
-            field = value
-            source.put("picDefaultSaveFormat", value)
-        }
+        set(value) { source.put("picDefaultSaveFormat", value) }
 
-    var shellAuthType: String = ""
+    var picQuality: Int
+        get() = JSONX.optInt(source, "picQuality", 90)
+        set(value) { source.put("picQuality", value) }
+
+    var shellAuthType: String
         get() = JSONX.optString(source, "shellAuthType", "") ?: ""
-        set(value) {
-            field = value
-            source.put("shellAuthType", value)
-        }
+        set(value) { source.put("shellAuthType", value) }
 
-    var rootStatus: String = "UNKNOWN"
+    var rootStatus: String
         get() = JSONX.optString(source, "rootStatus", "UNKNOWN") ?: "UNKNOWN"
-        set(value) {
-            field = value
-            source.put("rootStatus", value)
-        }
+        set(value) { source.put("rootStatus", value) }
 
-    var suManagerName: String = "Root"
+    var suManagerName: String
         get() = JSONX.optString(source, "suManagerName", "Root") ?: "Root"
-        set(value) {
-            field = value
-            source.put("suManagerName", value)
-        }
+        set(value) { source.put("suManagerName", value) }
 
-    fun toJson(): String {
-        return source.toString()
-    }
+    fun toJson(): String = source.toString()
 
     fun save() {
         save(this)
     }
 
     companion object {
-        private var cachedInstance: ModuleConfig? = null
-
-        private var lastReloadTime = 0L
-        private const val RELOAD_INTERVAL = 10000L // 10秒重载一次配置，避免磁盘 IO 过频
+        private val cachedInstance = AtomicReference<ModuleConfig>()
+        private var isBackgroundSyncStarted = false
+        private const val SYNC_INTERVAL = 10000L // 10秒异步同步一次
 
         @JvmStatic
         fun getInstance(): ModuleConfig {
-            val table = LocalKVUtil.getTable("module")
-            
-            // 安全检查：仅在 XSharedPreferences 且超过间隔时重载
-            if (table.javaClass.name.contains("XSharedPreferences")) {
-                val now = System.currentTimeMillis()
-                if (now - lastReloadTime > RELOAD_INTERVAL) {
-                    try {
-                        table.javaClass.getMethod("reload").invoke(table)
-                        lastReloadTime = now
-                        cachedInstance = null // 清除缓存以触发重新加载
-                    } catch (e: Exception) {
-                        LogUtil.e("Reload config failed", e)
+            var instance = cachedInstance.get()
+            if (instance == null) {
+                instance = load()
+                cachedInstance.set(instance)
+            }
+            return instance
+        }
+
+        @JvmStatic
+        fun ensureBackgroundSync() {
+            if (isBackgroundSyncStarted) return
+            synchronized(this) {
+                if (isBackgroundSyncStarted) return
+                isBackgroundSyncStarted = true
+                thread(name = "PicCatcher-ConfigSync", isDaemon = true) {
+                    while (true) {
+                        try {
+                            Thread.sleep(SYNC_INTERVAL)
+                            val table = LocalKVUtil.getTable("module")
+                            if (table.javaClass.name.contains("XSharedPreferences")) {
+                                try {
+                                    table.javaClass.getMethod("reload").invoke(table)
+                                    cachedInstance.set(load())
+                                } catch (e: Exception) {}
+                            }
+                        } catch (e: InterruptedException) {
+                            break
+                        } catch (e: Exception) {}
                     }
                 }
             }
-            
-            if (cachedInstance == null) {
-                cachedInstance = load()
-            }
-            return cachedInstance!!
         }
 
         @JvmStatic
         fun load(): ModuleConfig {
             val moduleConfig = LocalKVUtil.getTable("module").getString("module_config", "{}")
-            val json = moduleConfig.toJSONObject()
-            return ModuleConfig(json ?: JSONObject())
+            return ModuleConfig(moduleConfig.toJSONObject() ?: JSONObject())
         }
 
         @JvmStatic
         fun save(moduleConfig: ModuleConfig) {
-            val json = moduleConfig.toJson()
-            LocalKVUtil.getTable("module").edit().putString("module_config", json).apply()
-            cachedInstance = moduleConfig
+            LocalKVUtil.getTable("module").edit().putString("module_config", moduleConfig.toJson()).apply()
+            cachedInstance.set(moduleConfig)
         }
 
         @JvmStatic
         fun isLessThanMinSize(length: Long): Boolean {
             return length < getInstance().minSpaceSize * 1024L
         }
-
     }
 }

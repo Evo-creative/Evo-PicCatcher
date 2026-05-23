@@ -1,6 +1,5 @@
 package com.pic.catcher.ui
 
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
@@ -11,20 +10,13 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import com.google.android.material.slider.Slider
 import com.pic.catcher.R
 import com.pic.catcher.adapter.BindingListAdapter
 import com.pic.catcher.base.BaseFragment
-import com.pic.catcher.bean.EditItem
-import com.pic.catcher.bean.ItemType
-import com.pic.catcher.bean.SpinnerItem
-import com.pic.catcher.bean.SwitchItem
-import com.pic.catcher.bean.TextItem
+import com.pic.catcher.bean.*
 import com.pic.catcher.config.ModuleConfig
-import com.pic.catcher.databinding.FragmentSettingsBinding
-import com.pic.catcher.databinding.ItemConfigEditBinding
-import com.pic.catcher.databinding.ItemConfigSpinnerBinding
-import com.pic.catcher.databinding.ItemConfigSwitchBinding
-import com.pic.catcher.databinding.ItemConfigTextBinding
+import com.pic.catcher.databinding.*
 import com.pic.catcher.ui.config.PicFormat
 import com.pic.catcher.util.RootUtil
 import com.pic.catcher.util.ext.dp
@@ -44,10 +36,6 @@ class SettingsFragment : BaseFragment() {
         return binding.root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         if (::moduleConfig.isInitialized && moduleConfig.source.toString() != mConfigSourceText) {
@@ -64,25 +52,115 @@ class SettingsFragment : BaseFragment() {
             val picFormatList = listOf(PicFormat.WEBP, PicFormat.JPG, PicFormat.PNG)
             val picSelectFormatIndex = picFormatList.indexOfFirst { it == moduleConfig.picDefaultSaveFormat }
             
-            val items = mutableListOf<ItemType>(
-                SwitchItem(getString(R.string.config_catch_net_pic), moduleConfig.isCatchNetPic).apply {
+            val catcherItems = mutableListOf<ItemType>(
+                SwitchItem(getString(R.string.config_catch_net_pic), moduleConfig.isCatchNetPic, getString(R.string.config_catch_net_pic_desc)).apply {
                     addPropertyChangeListener { 
                         moduleConfig.isCatchNetPic = checked 
                         updateConfig()
                     }
                 },
-                SwitchItem(getString(R.string.config_catch_webview_pic), moduleConfig.isCatchWebViewPic).apply {
+                SwitchItem(getString(R.string.config_catch_webview_pic), moduleConfig.isCatchWebViewPic, getString(R.string.config_catch_webview_pic_desc)).apply {
                     addPropertyChangeListener { 
                         moduleConfig.isCatchWebViewPic = checked 
                         updateConfig()
                     }
                 },
-                SwitchItem(getString(R.string.config_catch_glide_pic), moduleConfig.isCatchGlidePic).apply {
+                SwitchItem(getString(R.string.config_catch_glide_pic), moduleConfig.isCatchGlidePic, getString(R.string.config_catch_glide_pic_desc)).apply {
                     addPropertyChangeListener { 
                         moduleConfig.isCatchGlidePic = checked 
                         updateConfig()
                     }
                 },
+                SwitchItem(getString(R.string.config_catch_coil_pic), moduleConfig.isCatchCoilPic, getString(R.string.config_catch_coil_pic_desc)).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.isCatchCoilPic = checked 
+                        updateConfig()
+                    }
+                },
+                SwitchItem(getString(R.string.config_catch_fresco_pic), moduleConfig.isCatchFrescoPic, getString(R.string.config_catch_fresco_pic_desc)).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.isCatchFrescoPic = checked 
+                        updateConfig()
+                    }
+                },
+                SwitchItem(getString(R.string.config_catch_bitmap_pic), moduleConfig.isCatchBitmapPic, getString(R.string.config_catch_bitmap_pic_desc)).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.isCatchBitmapPic = checked 
+                        updateConfig()
+                    }
+                },
+                SwitchItem(getString(R.string.config_catch_imagedecoder_pic), moduleConfig.isCatchImageDecoderPic, getString(R.string.config_catch_imagedecoder_pic_desc)).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.isCatchImageDecoderPic = checked 
+                        updateConfig()
+                    }
+                },
+                SwitchItem(getString(R.string.config_catch_native_bitmap_pic), moduleConfig.isCatchNativeBitmapPic, getString(R.string.config_catch_native_bitmap_pic_desc)).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.isCatchNativeBitmapPic = checked 
+                        updateConfig()
+                    }
+                },
+                SwitchItem(getString(R.string.config_catch_rendernode_pic), moduleConfig.isCatchRenderNodePic, getString(R.string.config_catch_rendernode_pic_desc)).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.isCatchRenderNodePic = checked 
+                        updateConfig()
+                    }
+                },
+                SwitchItem(getString(R.string.config_catch_canvas_pic), moduleConfig.isCatchCanvasPic, getString(R.string.config_catch_canvas_pic_desc)).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.isCatchCanvasPic = checked 
+                        updateConfig()
+                    }
+                },
+                SwitchItem(getString(R.string.config_catch_surface_pic), moduleConfig.isCatchSurfacePic, getString(R.string.config_catch_surface_pic_desc)).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.isCatchSurfacePic = checked 
+                        updateConfig()
+                    }
+                },
+                SwitchItem(getString(R.string.config_catch_hardwarerenderer_pic), moduleConfig.isCatchHardwareRendererPic, getString(R.string.config_catch_hardwarerenderer_pic_desc)).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.isCatchHardwareRendererPic = checked
+                        updateConfig()
+                    }
+                },
+                SwitchItem(getString(R.string.config_catch_drawable_pic), moduleConfig.isCatchDrawablePic, getString(R.string.config_catch_drawable_pic_desc)).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.isCatchDrawablePic = checked 
+                        updateConfig()
+                    }
+                },
+                SwitchItem(getString(R.string.config_catch_imageview_pic), moduleConfig.isCatchImageViewPic, getString(R.string.config_catch_imageview_pic_desc)).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.isCatchImageViewPic = checked 
+                        updateConfig()
+                    }
+                },
+                SwitchItem(getString(R.string.config_catch_file_pic), moduleConfig.isCatchFilePic, getString(R.string.config_catch_file_pic_desc)).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.isCatchFilePic = checked 
+                        updateConfig()
+                    }
+                },
+                SwitchItem(getString(R.string.config_catch_movie_pic), moduleConfig.isCatchMoviePic, getString(R.string.config_catch_movie_pic_desc)).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.isCatchMoviePic = checked
+                        updateConfig()
+                    }
+                }
+            )
+
+            val items = mutableListOf<ItemType>()
+            
+            val groupItem = GroupItem(getString(R.string.config_group_catcher_methods), false)
+            items.add(groupItem)
+            // 默认不展开
+            if (groupItem.isExpanded) {
+                items.addAll(catcherItems)
+            }
+
+            items.add(
                 SwitchItem(
                     getString(R.string.config_save_to_internal),
                     moduleConfig.isSaveToInternal,
@@ -134,6 +212,19 @@ class SettingsFragment : BaseFragment() {
                         updateConfig()
                     }
                 },
+                SliderItem(
+                    getString(R.string.config_pic_quality),
+                    moduleConfig.picQuality.toFloat(),
+                    1.0f,
+                    100.0f
+                ).apply {
+                    addPropertyChangeListener {
+                        moduleConfig.picQuality = (it.newValue as Float).toInt()
+                        updateConfig()
+                        // 局部刷新，这里为了方便直接 notifyDataSetChanged
+                        mAdapter.notifyDataSetChanged()
+                    }
+                },
                 SpinnerItem(
                     getString(R.string.config_save_pic_default_format),
                     picFormatList,
@@ -147,13 +238,18 @@ class SettingsFragment : BaseFragment() {
             ))
             
             setData(items)
+            
+            // 保存 catcherItems 以便后续切换显示
+            this@SettingsFragment.catcherItems = catcherItems
         }
         binding.listView.adapter = mAdapter
         
         // 处理 TextItem 点击
         binding.listView.setOnItemClickListener { _, _, position, _ ->
             val item = mAdapter.getItem(position)
-            if (item is TextItem && item.name == "授权状态") {
+            if (item is GroupItem) {
+                toggleCatcherGroup(item, position)
+            } else if (item is TextItem && item.name == "授权状态") {
                 if (RootUtil.hasRootPermission()) {
                     Toast.makeText(context, "Root 权限正常", Toast.LENGTH_SHORT).show()
                 } else {
@@ -163,16 +259,38 @@ class SettingsFragment : BaseFragment() {
         }
     }
 
+    private lateinit var catcherItems: List<ItemType>
+
+    private fun toggleCatcherGroup(group: GroupItem, position: Int) {
+        group.isExpanded = !group.isExpanded
+        val currentItems = mAdapter.getData().toMutableList()
+        if (group.isExpanded) {
+            currentItems.addAll(position + 1, catcherItems)
+        } else {
+            // 安全删除，防止越界或逻辑错误
+            val start = position + 1
+            if (start < currentItems.size) {
+                val sizeToRemove = catcherItems.size.coerceAtMost(currentItems.size - start)
+                repeat(sizeToRemove) {
+                    currentItems.removeAt(start)
+                }
+            }
+        }
+        mAdapter.updateDataAt(currentItems)
+    }
+
     private fun updateConfig() {
         moduleConfig.save()
     }
 
     inner class ConfigListAdapter : BindingListAdapter<ItemType>() {
-        override fun getViewTypeCount(): Int = 4
+        override fun getViewTypeCount(): Int = 6
         override fun getItemViewType(position: Int): Int = when (getItem(position)) {
             is SwitchItem -> ItemType.TYPE_SWITCH
             is EditItem -> ItemType.TYPE_EDIT
             is SpinnerItem -> ItemType.TYPE_SPINNER
+            is SliderItem -> ItemType.TYPE_SLIDER
+            is GroupItem -> ItemType.TYPE_GROUP
             else -> ItemType.TYPE_TEXT
         }
 
@@ -180,12 +298,24 @@ class SettingsFragment : BaseFragment() {
             ItemType.TYPE_SWITCH -> BindingHolder(ItemConfigSwitchBinding.inflate(layoutInflater, parent, false))
             ItemType.TYPE_EDIT -> BindingHolder(ItemConfigEditBinding.inflate(layoutInflater, parent, false))
             ItemType.TYPE_SPINNER -> BindingHolder(ItemConfigSpinnerBinding.inflate(layoutInflater, parent, false))
+            ItemType.TYPE_SLIDER -> BindingHolder(ItemConfigSliderBinding.inflate(layoutInflater, parent, false))
+            ItemType.TYPE_GROUP -> BindingHolder(ItemConfigGroupBinding.inflate(layoutInflater, parent, false))
             else -> BindingHolder(ItemConfigTextBinding.inflate(layoutInflater, parent, false))
         }
 
         override fun onBindViewHolder(vh: BindingHolder, position: Int, parent: ViewGroup) {
             vh.binding.root.setPadding(h = 16.dp, v = 8.dp)
             when (val item = getItem(position)) {
+                is GroupItem -> {
+                    val holder = vh.binding as ItemConfigGroupBinding
+                    holder.groupTitle.text = item.title
+                    // MD3 风格：展开向上 (180度)，折叠向下 (0度)
+                    // ic_expand_more 默认指向下
+                    holder.groupIndicator.animate()
+                        .rotation(if (item.isExpanded) 180f else 0f)
+                        .setDuration(300)
+                        .start()
+                }
                 is SwitchItem -> {
                     val holder = vh.binding as ItemConfigSwitchBinding
                     holder.itemTitle.text = item.title
@@ -242,6 +372,30 @@ class SettingsFragment : BaseFragment() {
                             }
                         }
                         override fun onNothingSelected(p0: AdapterView<*>?) {}
+                    }
+                }
+                is SliderItem -> {
+                    val holder = vh.binding as ItemConfigSliderBinding
+                    holder.itemTitle.text = item.title
+                    holder.itemValueText.text = item.currentValue.toInt().toString()
+                    holder.itemSlider.valueFrom = item.min
+                    holder.itemSlider.valueTo = item.max
+                    holder.itemSlider.stepSize = item.step
+                    holder.itemSlider.value = item.currentValue
+                    
+                    holder.itemSlider.clearOnChangeListeners()
+                    holder.itemSlider.clearOnSliderTouchListeners()
+                    
+                    holder.itemSlider.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+                        override fun onStartTrackingTouch(slider: Slider) {}
+                        override fun onStopTrackingTouch(slider: Slider) {
+                            item.currentValue = slider.value
+                        }
+                    })
+                    holder.itemSlider.addOnChangeListener { _, value, fromUser ->
+                        if (fromUser) {
+                            holder.itemValueText.text = value.toInt().toString()
+                        }
                     }
                 }
                 is TextItem -> {

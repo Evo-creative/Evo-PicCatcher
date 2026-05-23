@@ -10,5 +10,7 @@ public interface ItemType {
     int TYPE_EDIT = 1;
     int TYPE_SWITCH = 2;
     int TYPE_SPINNER = 3;
+    int TYPE_SLIDER = 4;
+    int TYPE_GROUP = 5;
 }
 

@@ -10,6 +10,7 @@ import com.lu.lposed.api2.XposedHelpers2;
 import com.lu.lposed.plugin.IPlugin;
 import com.lu.magic.util.log.LogUtil;
 import com.pic.catcher.ClazzN;
+import com.pic.catcher.config.ModuleConfig;
 
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
@@ -31,6 +32,7 @@ public class CoilCatcherPlugin implements IPlugin {
         XposedHelpers2.hookAllMethods(realImageLoaderClazz, "execute", new XC_MethodHook2() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (!ModuleConfig.getInstance().isCatchCoilPic()) return;
                 Object result = param.getResult(); // SuccessResult or ErrorResult
                 if (result == null) return;
 

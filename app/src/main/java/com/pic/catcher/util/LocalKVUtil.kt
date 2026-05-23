@@ -4,26 +4,36 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import com.lu.magic.util.AppUtil
-import com.pic.catcher.BuildConfig
+import java.util.concurrent.ConcurrentHashMap
 
 class LocalKVUtil {
     companion object {
         const val defaultTableName = "app"
+        private val tableCache = ConcurrentHashMap<String, SharedPreferences>()
 
         @SuppressLint("WorldReadableFiles")
         @JvmStatic
         fun getTable(name: String): SharedPreferences {
+            var table = tableCache[name]
+            if (table != null) return table
+
             val packageName = "com.evo.piccatcher"
-            if (packageName == AppUtil.getContext().packageName) {
-                return try {
+            val context = try { AppUtil.getContext() } catch (e: Exception) { null }
+            
+            table = if (context != null && packageName == context.packageName) {
+                try {
                     @Suppress("DEPRECATION")
-                    AppUtil.getContext().getSharedPreferences(name, Context.MODE_WORLD_READABLE)
+                    context.getSharedPreferences(name, Context.MODE_WORLD_READABLE)
                 } catch (e: Exception) {
-                    AppUtil.getContext().getSharedPreferences(name, Context.MODE_PRIVATE)
+                    context.getSharedPreferences(name, Context.MODE_PRIVATE)
                 }
+            } else {
+                // xposed hook
+                LspUtil.getTable(name)
             }
-            // xposed hook
-            return LspUtil.getTable(name)
+
+            tableCache[name] = table
+            return table
         }
 
         @JvmStatic

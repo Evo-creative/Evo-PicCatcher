@@ -44,15 +44,15 @@ class HomeFragment : BaseFragment() {
         initShellStatus()
 
         // 核心修复：如果配置显示已授权但当前进程尚未连接，静默尝试以刷新状态（特别是 suName）
-        val config = ModuleConfig.getInstance()
-        if (config.rootStatus == "AUTHORIZED" && !RootUtil.hasRootPermission()) {
+        val configInstance = ModuleConfig.getInstance()
+        if (configInstance.rootStatus == "AUTHORIZED" && !RootUtil.hasRootPermission()) {
             AppExecutor.io().execute {
                 val result = RootUtil.checkRootStatus()
                 if (result.status == RootUtil.Status.AUTHORIZED) {
                     activity?.runOnUiThread {
-                        if (config.suManagerName != result.suName) {
-                            config.suManagerName = result.suName
-                            config.save()
+                        if (configInstance.suManagerName != result.suName) {
+                            configInstance.suManagerName = result.suName
+                            configInstance.save()
                             initShellStatus()
                         }
                     }
@@ -63,21 +63,21 @@ class HomeFragment : BaseFragment() {
 
     private fun initShellStatus() {
         val context = context ?: return
-        val config = ModuleConfig.getInstance()
+        val configInstance = ModuleConfig.getInstance()
         
         // 动态探测并保存 SU 名称 (Magisk/KernelSU/APatch)
-        val suName = if (config.suManagerName == "Root" || config.suManagerName.isEmpty()) {
+        val suName = if (configInstance.suManagerName == "Root" || configInstance.suManagerName.isEmpty()) {
             val detected = RootUtil.probeSuManagerName()
-            if (detected != config.suManagerName) {
-                config.suManagerName = detected
-                config.save()
+            if (detected != configInstance.suManagerName) {
+                configInstance.suManagerName = detected
+                configInstance.save()
             }
             detected
         } else {
-            config.suManagerName
+            configInstance.suManagerName
         }
         
-        val status = config.rootStatus
+        val status = configInstance.rootStatus
         val colorTertiaryContainer = MaterialColors.getColor(context, com.google.android.material.R.attr.colorTertiaryContainer, Color.LTGRAY)
         val onColorTertiaryContainer = MaterialColors.getColor(context, com.google.android.material.R.attr.colorOnTertiaryContainer, Color.BLACK)
         val colorErrorContainer = errorColorContainer(context)
@@ -140,14 +140,14 @@ class HomeFragment : BaseFragment() {
         AppExecutor.io().execute {
             val result = RootUtil.checkRootStatus()
             activity?.runOnUiThread {
-                val config = ModuleConfig.getInstance()
-                config.rootStatus = result.status.name
-                config.suManagerName = result.suName
+                val configInstance = ModuleConfig.getInstance()
+                configInstance.rootStatus = result.status.name
+                configInstance.suManagerName = result.suName
                 if (result.status == RootUtil.Status.AUTHORIZED) {
-                    config.shellAuthType = "Root"
+                    configInstance.shellAuthType = "Root"
                     Toast.makeText(context, "授权成功", Toast.LENGTH_SHORT).show()
                 }
-                config.save()
+                configInstance.save()
                 initShellStatus()
             }
         }

@@ -8,6 +8,7 @@ import com.lu.lposed.api2.XposedHelpers2;
 import com.lu.lposed.plugin.IPlugin;
 import com.lu.magic.util.log.LogUtil;
 
+import com.pic.catcher.config.ModuleConfig;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class NativeBitmapCatcherPlugin implements IPlugin {
@@ -26,6 +27,7 @@ public class NativeBitmapCatcherPlugin implements IPlugin {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 if (isHooking.get()) return;
+                if (!ModuleConfig.getInstance().isCatchNativeBitmapPic()) return;
                 try {
                     isHooking.set(true);
                     Bitmap bitmap = (Bitmap) param.getResult();
@@ -43,6 +45,7 @@ public class NativeBitmapCatcherPlugin implements IPlugin {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 if (isHooking.get()) return;
+                if (!ModuleConfig.getInstance().isCatchNativeBitmapPic()) return;
                 try {
                     isHooking.set(true);
                     Bitmap bitmap = (Bitmap) param.getResult();

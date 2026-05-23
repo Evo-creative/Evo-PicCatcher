@@ -9,6 +9,7 @@ import com.lu.lposed.api2.XposedHelpers2;
 import com.lu.lposed.plugin.IPlugin;
 import com.lu.magic.util.log.LogUtil;
 
+import com.pic.catcher.config.ModuleConfig;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 /**
@@ -26,6 +27,9 @@ public class DrawableCatcherPlugin implements IPlugin {
                 new XC_MethodHook2() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!ModuleConfig.getInstance().isCatchDrawablePic()) {
+                            return;
+                        }
                         Bitmap bitmap = (Bitmap) param.args[1];
                         if (bitmap != null) {
                             LogUtil.d("DrawableCatcherPlugin", "BitmapDrawable constructor captured");
@@ -44,6 +48,9 @@ public class DrawableCatcherPlugin implements IPlugin {
                     new XC_MethodHook2() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            if (!ModuleConfig.getInstance().isCatchDrawablePic()) {
+                                return;
+                            }
                             Bitmap bitmap = (Bitmap) param.args[0];
                             if (bitmap != null) {
                                 LogUtil.d("DrawableCatcherPlugin", "BitmapDrawable.setBitmap captured");

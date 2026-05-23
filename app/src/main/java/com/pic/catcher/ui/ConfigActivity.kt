@@ -106,6 +106,78 @@ class ConfigActivity : BindingActivity<ActivityConfigBinding>() {
                             showUpdatedToast()
                         }
                     },
+                    SwitchItem(getString(R.string.config_catch_coil_pic), moduleConfig.isCatchCoilPic).apply {
+                        addPropertyChangeListener {
+                            moduleConfig.isCatchCoilPic = checked
+                            showUpdatedToast()
+                        }
+                    },
+                    SwitchItem(getString(R.string.config_catch_fresco_pic), moduleConfig.isCatchFrescoPic).apply {
+                        addPropertyChangeListener {
+                            moduleConfig.isCatchFrescoPic = checked
+                            showUpdatedToast()
+                        }
+                    },
+                    SwitchItem(getString(R.string.config_catch_bitmap_pic), moduleConfig.isCatchBitmapPic).apply {
+                        addPropertyChangeListener {
+                            moduleConfig.isCatchBitmapPic = checked
+                            showUpdatedToast()
+                        }
+                    },
+                    SwitchItem(getString(R.string.config_catch_imagedecoder_pic), moduleConfig.isCatchImageDecoderPic).apply {
+                        addPropertyChangeListener {
+                            moduleConfig.isCatchImageDecoderPic = checked
+                            showUpdatedToast()
+                        }
+                    },
+                    SwitchItem(getString(R.string.config_catch_native_bitmap_pic), moduleConfig.isCatchNativeBitmapPic).apply {
+                        addPropertyChangeListener {
+                            moduleConfig.isCatchNativeBitmapPic = checked
+                            showUpdatedToast()
+                        }
+                    },
+                    SwitchItem(getString(R.string.config_catch_rendernode_pic), moduleConfig.isCatchRenderNodePic).apply {
+                        addPropertyChangeListener {
+                            moduleConfig.isCatchRenderNodePic = checked
+                            showUpdatedToast()
+                        }
+                    },
+                    SwitchItem(getString(R.string.config_catch_canvas_pic), moduleConfig.isCatchCanvasPic).apply {
+                        addPropertyChangeListener {
+                            moduleConfig.isCatchCanvasPic = checked
+                            showUpdatedToast()
+                        }
+                    },
+                    SwitchItem(getString(R.string.config_catch_surface_pic), moduleConfig.isCatchSurfacePic).apply {
+                        addPropertyChangeListener {
+                            moduleConfig.isCatchSurfacePic = checked
+                            showUpdatedToast()
+                        }
+                    },
+                    SwitchItem(getString(R.string.config_catch_drawable_pic), moduleConfig.isCatchDrawablePic).apply {
+                        addPropertyChangeListener {
+                            moduleConfig.isCatchDrawablePic = checked
+                            showUpdatedToast()
+                        }
+                    },
+                    SwitchItem(getString(R.string.config_catch_imageview_pic), moduleConfig.isCatchImageViewPic).apply {
+                        addPropertyChangeListener {
+                            moduleConfig.isCatchImageViewPic = checked
+                            showUpdatedToast()
+                        }
+                    },
+                    SwitchItem(getString(R.string.config_catch_file_pic), moduleConfig.isCatchFilePic).apply {
+                        addPropertyChangeListener {
+                            moduleConfig.isCatchFilePic = checked
+                            showUpdatedToast()
+                        }
+                    },
+                    SwitchItem(getString(R.string.config_catch_movie_pic), moduleConfig.isCatchMoviePic).apply {
+                        addPropertyChangeListener {
+                            moduleConfig.isCatchMoviePic = checked
+                            showUpdatedToast()
+                        }
+                    },
                     SwitchItem(
                         getString(R.string.config_save_to_internal),
                         moduleConfig.isSaveToInternal,

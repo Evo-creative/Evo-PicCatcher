@@ -35,9 +35,12 @@ public class PicExportManager {
     private static PicExportManager sInstance;
     private File mCachedCacheDir;
     
-    private static final ExecutorService sWorker = new ThreadPoolExecutor(1, 1,
-            0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(150),
+    private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
+    private static final ExecutorService sWorker = new ThreadPoolExecutor(
+            Math.max(2, Math.min(CPU_COUNT - 1, 4)), 
+            8,
+            30L, TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(500),
             r -> {
                 Thread t = new Thread(r, "PicExportWorker");
                 t.setPriority(Thread.MIN_PRIORITY);
@@ -91,13 +94,15 @@ public class PicExportManager {
                                          (PicFormat.PNG.equals(format) ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.WEBP);
                 
                 try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-                    bitmap.compress(cf, 85, bos); 
+                    int quality = ModuleConfig.getInstance().getPicQuality();
+                    bitmap.compress(cf, quality, bos);
                     byte[] bytes = bos.toByteArray();
                     
                     // 仅使用配置中的过滤
                     if (ModuleConfig.isLessThanMinSize((long) bytes.length)) return;
                     
-                    String fileName = Md5Util.get(bytes) + "." + format;
+                    // 优化：使用简单的 Hash 配合长度代替 MD5，减少 CPU 占用
+                    String fileName = Integer.toHexString(bitmap.hashCode()) + "_" + bytes.length + "." + format;
                     writeToHostCache(bytes, fileName);
                 }
             } catch (Throwable ignored) {}
@@ -119,7 +124,8 @@ public class PicExportManager {
             try {
                 String suffix = TextUtils.isEmpty(lastName) ? PicUtil.detectImageType(dataBytes, "bin") : lastName;
                 if (!suffix.startsWith(".")) suffix = "." + suffix;
-                String fileName = Md5Util.get(dataBytes) + suffix;
+                // 快速生成文件名
+                String fileName = "raw_" + System.identityHashCode(dataBytes) + "_" + dataBytes.length + suffix;
                 writeToHostCache(dataBytes, fileName);
             } catch (Throwable ignored) {}
         });

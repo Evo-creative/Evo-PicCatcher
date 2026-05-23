@@ -10,6 +10,7 @@ import com.lu.magic.util.log.LogUtil;
 
 import java.io.InputStream;
 
+import com.pic.catcher.config.ModuleConfig;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 /**
@@ -27,6 +28,7 @@ public class MovieCatcherPlugin implements IPlugin {
                 new XC_MethodHook2() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!ModuleConfig.getInstance().isCatchMoviePic()) return;
                         InputStream inputStream = (InputStream) param.args[0];
                         if (inputStream != null) {
                             LogUtil.d("MovieCatcherPlugin", "Captured from decodeStream");
@@ -46,6 +48,7 @@ public class MovieCatcherPlugin implements IPlugin {
                 new XC_MethodHook2() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!ModuleConfig.getInstance().isCatchMoviePic()) return;
                         byte[] data = (byte[]) param.args[0];
                         if (data != null) {
                             LogUtil.d("MovieCatcherPlugin", "Captured from decodeByteArray, size: " + data.length);

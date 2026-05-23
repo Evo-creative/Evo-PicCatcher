@@ -13,6 +13,7 @@ import com.lu.lposed.api2.XposedHelpers2;
 import com.lu.lposed.plugin.IPlugin;
 import com.lu.magic.util.log.LogUtil;
 
+import com.pic.catcher.config.ModuleConfig;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 /**
@@ -33,6 +34,9 @@ public class CanvasCatcherPlugin implements IPlugin {
                 new XC_MethodHook2() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!ModuleConfig.getInstance().isCatchCanvasPic()) {
+                            return;
+                        }
                         Bitmap bitmap = (Bitmap) param.args[0];
                         if (bitmap != null) {
                             LogUtil.d("CanvasCatcherPlugin", "Canvas.drawBitmap(Bitmap, float, float, Paint) captured");
@@ -53,6 +57,9 @@ public class CanvasCatcherPlugin implements IPlugin {
                 new XC_MethodHook2() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!ModuleConfig.getInstance().isCatchCanvasPic()) {
+                            return;
+                        }
                         Bitmap bitmap = (Bitmap) param.args[0];
                         if (bitmap != null) {
                             LogUtil.d("CanvasCatcherPlugin", "Canvas.drawBitmap(Bitmap, Rect, Rect, Paint) captured");
@@ -73,6 +80,9 @@ public class CanvasCatcherPlugin implements IPlugin {
                 new XC_MethodHook2() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!ModuleConfig.getInstance().isCatchCanvasPic()) {
+                            return;
+                        }
                         Bitmap bitmap = (Bitmap) param.args[0];
                         if (bitmap != null) {
                             LogUtil.d("CanvasCatcherPlugin", "Canvas.drawBitmap(Bitmap, Rect, RectF, Paint) captured");
@@ -92,6 +102,9 @@ public class CanvasCatcherPlugin implements IPlugin {
                 new XC_MethodHook2() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!ModuleConfig.getInstance().isCatchCanvasPic()) {
+                            return;
+                        }
                         Bitmap bitmap = (Bitmap) param.args[0];
                         if (bitmap != null) {
                             LogUtil.d("CanvasCatcherPlugin", "Canvas.drawBitmap(Bitmap, Matrix, Paint) captured");

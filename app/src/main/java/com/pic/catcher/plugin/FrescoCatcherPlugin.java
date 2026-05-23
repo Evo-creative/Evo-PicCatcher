@@ -9,6 +9,7 @@ import com.lu.lposed.plugin.IPlugin;
 import com.lu.magic.util.IOUtil;
 import com.lu.magic.util.log.LogUtil;
 import com.pic.catcher.ClazzN;
+import com.pic.catcher.config.ModuleConfig;
 
 import java.io.InputStream;
 
@@ -31,6 +32,9 @@ public class FrescoCatcherPlugin implements IPlugin {
             XposedHelpers2.hookAllMethods(defaultImageDecoderClazz, "decode", new XC_MethodHook2() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) {
+                    if (!ModuleConfig.getInstance().isCatchFrescoPic()) {
+                        return;
+                    }
                     Object encodedImage = param.args[0];
                     if (encodedImage == null) return;
 
@@ -63,6 +67,9 @@ public class FrescoCatcherPlugin implements IPlugin {
                 new XC_MethodHook2() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) {
+                        if (!ModuleConfig.getInstance().isCatchFrescoPic()) {
+                            return;
+                        }
                         Bitmap bitmap = (Bitmap) param.args[0];
                         if (bitmap != null) {
                             LogUtil.d("FrescoCatcherPlugin", "Captured from CloseableStaticBitmap constructor");

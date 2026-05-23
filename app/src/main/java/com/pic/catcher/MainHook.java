@@ -22,11 +22,14 @@ import com.pic.catcher.plugin.DrawableCatcherPlugin;
 import com.pic.catcher.plugin.FileCatcherPlugin;
 import com.pic.catcher.plugin.FrescoCatcherPlugin;
 import com.pic.catcher.plugin.GlideCatcherPlugin;
+import com.pic.catcher.plugin.HardwareRendererCatcherPlugin;
 import com.pic.catcher.plugin.ImageDecoderCatcherPlugin;
 import com.pic.catcher.plugin.ImageViewCatcherPlugin;
 import com.pic.catcher.plugin.MovieCatcherPlugin;
 import com.pic.catcher.plugin.NativeBitmapCatcherPlugin;
 import com.pic.catcher.plugin.OKHttpPlugin;
+import com.pic.catcher.plugin.RenderNodeCatcherPlugin;
+import com.pic.catcher.plugin.SurfaceCatcherPlugin;
 import com.pic.catcher.plugin.WebViewCatcherPlugin;
 import com.pic.catcher.plugin.X5WebViewCatcherPlugin;
 
@@ -183,11 +186,22 @@ public class MainHook implements IXposedHookLoadPackage, IXposedHookZygoteInit, 
         LogUtil.i("start init Plugin");
         hasInit = true;
         AppUtil.attachContext(context);
+        
+        // 预加载配置并启动异步同步
+        com.pic.catcher.config.ModuleConfig.getInstance();
+        com.pic.catcher.config.ModuleConfig.ensureBackgroundSync();
 
         if (BuildConfig.APPLICATION_ID.equals(lpparam.packageName)) {
             initSelfPlugins(context, lpparam);
         } else {
-            initTargetPlugins(context, lpparam);
+            // 异步初始化目标应用插件，避免阻塞 Application.onCreate 导致 ANR
+            new Thread(() -> {
+                try {
+                    initTargetPlugins(context, lpparam);
+                } catch (Throwable e) {
+                    LogUtil.w("Async initTargetPlugins failed", e);
+                }
+            }, "PicCatcher-Init").start();
         }
 
         for (XC_MethodHook.Unhook unhook : initUnHookList) {
@@ -219,7 +233,10 @@ public class MainHook implements IXposedHookLoadPackage, IXposedHookZygoteInit, 
                 ImageDecoderCatcherPlugin.class,
                 CoilCatcherPlugin.class,
                 NativeBitmapCatcherPlugin.class,
-                FileCatcherPlugin.class
+                FileCatcherPlugin.class,
+                RenderNodeCatcherPlugin.class,
+                SurfaceCatcherPlugin.class,
+                HardwareRendererCatcherPlugin.class
         ).handleHooks(context, lpparam);
 
     }

@@ -11,6 +11,8 @@ import com.lu.lposed.api2.XC_MethodHook2;
 import com.lu.lposed.api2.XposedHelpers2;
 import com.lu.lposed.plugin.IPlugin;
 
+import com.pic.catcher.config.ModuleConfig;
+
 import java.io.File;
 import java.io.InputStream;
 
@@ -22,8 +24,13 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
  * @description bitmap hook
  */
 public class BitmapCatcherPlugin implements IPlugin {
+    private boolean isEnabled = true;
+
     @Override
     public void handleHook(Context context, XC_LoadPackage.LoadPackageParam loadPackageParam) {
+        // 插件加载时同步一次开关状态，之后由 ModuleConfig 内部的异步刷新线程通过其单例更新
+        // 但为了性能，我们在 Hook 回调里尽量直接访问，不再重复 getInstance
+        
         XposedHelpers2.findAndHookMethod(
                 BitmapFactory.class,
                 "decodeFile",
@@ -32,7 +39,9 @@ public class BitmapCatcherPlugin implements IPlugin {
                 new XC_MethodHook2() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!ModuleConfig.getInstance().isCatchBitmapPic()) return;
                         String filePath = (String) param.args[0];
+                        if (filePath == null) return;
                         PicExportManager.getInstance().exportBitmapFile(new File(filePath));
                     }
                 });
@@ -46,6 +55,7 @@ public class BitmapCatcherPlugin implements IPlugin {
                 new XC_MethodHook2() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!ModuleConfig.getInstance().isCatchBitmapPic()) return;
                         Bitmap bitmap = (Bitmap) param.getResult();
                         PicExportManager.getInstance().exportBitmap(bitmap);
                     }
@@ -61,6 +71,7 @@ public class BitmapCatcherPlugin implements IPlugin {
                 new XC_MethodHook2() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!ModuleConfig.getInstance().isCatchBitmapPic()) return;
                         Bitmap bitmap = (Bitmap) param.getResult();
                         PicExportManager.getInstance().exportBitmap(bitmap);
                     }
@@ -77,6 +88,7 @@ public class BitmapCatcherPlugin implements IPlugin {
                 new XC_MethodHook2() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!ModuleConfig.getInstance().isCatchBitmapPic()) return;
                         Bitmap bitmap = (Bitmap) param.getResult();
                         PicExportManager.getInstance().exportBitmap(bitmap);
                     }
@@ -91,6 +103,7 @@ public class BitmapCatcherPlugin implements IPlugin {
                 new XC_MethodHook2() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!ModuleConfig.getInstance().isCatchBitmapPic()) return;
                         Bitmap bitmap = (Bitmap) param.getResult();
                         PicExportManager.getInstance().exportBitmap(bitmap);
                     }
@@ -106,6 +119,7 @@ public class BitmapCatcherPlugin implements IPlugin {
                 new XC_MethodHook2() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!ModuleConfig.getInstance().isCatchBitmapPic()) return;
                         byte[] data = (byte[]) param.args[0];
                         int offset = (int) param.args[1];
                         int length = (int) param.args[2];

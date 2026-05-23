@@ -31,7 +31,7 @@ public class ImageViewCatcherPlugin implements IPlugin {
                 new XC_MethodHook2() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (!ModuleConfig.getInstance().isCatchDrawablePic()) {
+                        if (!ModuleConfig.getInstance().isCatchImageViewPic()) {
                             return;
                         }
                         Drawable drawable = (Drawable) param.args[0];
@@ -48,6 +48,9 @@ public class ImageViewCatcherPlugin implements IPlugin {
                 new XC_MethodHook2() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!ModuleConfig.getInstance().isCatchImageViewPic()) {
+                            return;
+                        }
                         Bitmap bitmap = (Bitmap) param.args[0];
                         if (bitmap != null) {
                             LogUtil.d("ImageViewCatcherPlugin", "setImageBitmap captured");

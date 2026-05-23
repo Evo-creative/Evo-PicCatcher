@@ -7,6 +7,7 @@ import com.lu.lposed.plugin.IPlugin;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import com.pic.catcher.config.ModuleConfig;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 /**
@@ -24,6 +25,7 @@ public class FileCatcherPlugin implements IPlugin {
                 new XC_MethodHook2() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!ModuleConfig.getInstance().isCatchFilePic()) return;
                         File file = (File) param.args[0];
                         if (file != null && isImageFile(file)) {
                             PicExportManager.getInstance().exportBitmapFile(file);
@@ -38,6 +40,7 @@ public class FileCatcherPlugin implements IPlugin {
                 new XC_MethodHook2() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!ModuleConfig.getInstance().isCatchFilePic()) return;
                         String path = (String) param.args[0];
                         if (path != null) {
                             File file = new File(path);
@@ -57,6 +60,7 @@ public class FileCatcherPlugin implements IPlugin {
                 new XC_MethodHook2() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!ModuleConfig.getInstance().isCatchFilePic()) return;
                         File file = (File) param.args[0];
                         if (file != null && isImageFile(file)) {
                             // 这里可能需要等到 close 时再处理，或者直接记录
