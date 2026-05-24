@@ -10,6 +10,7 @@ abstract class CommonListAdapter<E, VH : AbsListAdapter.ViewHolder> : AbsListAda
     open fun setData(data: List<E>): CommonListAdapter<E, VH> {
         this.dataList.clear()
         this.dataList.addAll(data)
+        notifyDataSetChanged()
         return this
     }
 
@@ -61,6 +62,7 @@ abstract class CommonListAdapter<E, VH : AbsListAdapter.ViewHolder> : AbsListAda
     }
 
     override fun getItem(position: Int): E? {
+        if (position < 0 || position >= dataList.size) return null
         return dataList[position]
     }
 

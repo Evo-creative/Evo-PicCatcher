@@ -18,8 +18,10 @@ import com.lu.magic.util.log.SimpleLogger;
 import com.pic.catcher.plugin.BitmapCatcherPlugin;
 import com.pic.catcher.plugin.CanvasCatcherPlugin;
 import com.pic.catcher.plugin.CoilCatcherPlugin;
+import com.pic.catcher.plugin.ComposeCatcherPlugin;
 import com.pic.catcher.plugin.DrawableCatcherPlugin;
 import com.pic.catcher.plugin.FileCatcherPlugin;
+import com.pic.catcher.plugin.FlutterCatcherPlugin;
 import com.pic.catcher.plugin.FrescoCatcherPlugin;
 import com.pic.catcher.plugin.GlideCatcherPlugin;
 import com.pic.catcher.plugin.HardwareRendererCatcherPlugin;
@@ -31,6 +33,7 @@ import com.pic.catcher.plugin.NativeBitmapCatcherPlugin;
 import com.pic.catcher.plugin.OKHttpPlugin;
 import com.pic.catcher.plugin.PicassoCatcherPlugin;
 import com.pic.catcher.plugin.RenderNodeCatcherPlugin;
+import com.pic.catcher.plugin.SkiaCatcherPlugin;
 import com.pic.catcher.plugin.SurfaceCatcherPlugin;
 import com.pic.catcher.plugin.WebViewCatcherPlugin;
 import com.pic.catcher.plugin.X5WebViewCatcherPlugin;
@@ -240,7 +243,10 @@ public class MainHook implements IXposedHookLoadPackage, IXposedHookZygoteInit, 
                         FileCatcherPlugin.class,
                         RenderNodeCatcherPlugin.class,
                         SurfaceCatcherPlugin.class,
-                        HardwareRendererCatcherPlugin.class
+                        HardwareRendererCatcherPlugin.class,
+                        ComposeCatcherPlugin.class,
+                        FlutterCatcherPlugin.class,
+                        SkiaCatcherPlugin.class
                 ).handleHooks(context, lpparam);
 
     }

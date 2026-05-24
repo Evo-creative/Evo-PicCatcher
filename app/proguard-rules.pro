@@ -44,3 +44,8 @@
 -keepclassmembers class * extends com.lu.lposed.plugin.IPlugin {
       <init>();
 }
+
+# 保持 ModuleConfig 中的字段名，因为 SettingsFragment 使用反射通过字符串名称访问它们
+-keepclassmembers class com.pic.catcher.config.ModuleConfig {
+    <fields>;
+}

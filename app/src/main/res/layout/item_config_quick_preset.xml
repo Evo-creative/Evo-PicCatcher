@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="8dp">
+
+    <Button
+        android:id="@+id/btnAll"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginEnd="4dp"
+        android:padding="0dp"
+        android:text="全火力"
+        android:textSize="12sp" />
+
+    <Button
+        android:id="@+id/btnHigh"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginHorizontal="2dp"
+        android:padding="0dp"
+        android:text="高影响"
+        android:textSize="12sp" />
+
+    <Button
+        android:id="@+id/btnMedium"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginHorizontal="2dp"
+        android:padding="0dp"
+        android:text="中影响"
+        android:textSize="12sp" />
+
+    <Button
+        android:id="@+id/btnLow"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="4dp"
+        android:padding="0dp"
+        android:text="低开销"
+        android:textSize="12sp" />
+
+</LinearLayout>

@@ -30,17 +30,6 @@
         android:theme="@style/Theme.PicCatcher"
         android:usesCleartextTraffic="true">
 
-        <provider
-            android:name="com.pic.catcher.provider.LogProvider"
-            android:authorities="com.pic.catcher.logprovider"
-            android:exported="true"
-            android:enabled="true"
-            tools:ignore="ExportedContentProvider">
-            <intent-filter>
-                <action android:name="android.content.action.LOG_PROVIDER" />
-            </intent-filter>
-        </provider>
-
         <meta-data android:name="xposedmodule" android:value="true" />
         <meta-data android:name="xposeddescription" android:value="@string/app_xposed_description" />
         <meta-data android:name="xposedminversion" android:value="93" />

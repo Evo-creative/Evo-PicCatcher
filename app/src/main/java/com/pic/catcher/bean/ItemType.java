@@ -12,5 +12,6 @@ public interface ItemType {
     int TYPE_SPINNER = 3;
     int TYPE_SLIDER = 4;
     int TYPE_GROUP = 5;
+    int TYPE_QUICK_PRESET = 6;
 }
 

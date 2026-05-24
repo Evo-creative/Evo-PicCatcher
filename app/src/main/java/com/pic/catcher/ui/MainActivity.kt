@@ -55,8 +55,8 @@ class MainActivity : BaseActivity() {
                     switchFragment(HomeFragment::class.java)
                     true
                 }
-                R.id.nav_other -> {
-                    switchFragment(OtherFragment::class.java)
+                R.id.nav_presets -> {
+                    switchFragment(PresetsFragment::class.java)
                     true
                 }
                 else -> false

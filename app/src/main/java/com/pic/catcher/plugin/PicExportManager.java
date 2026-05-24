@@ -14,7 +14,6 @@ import com.pic.catcher.ui.config.PicFormat;
 import com.pic.catcher.util.FileUtils;
 import com.pic.catcher.util.Md5Util;
 import com.pic.catcher.util.PicUtil;
-import com.pic.catcher.util.XLog;
 import com.pic.catcher.util.http.HttpConnectUtil;
 
 import java.io.ByteArrayOutputStream;
