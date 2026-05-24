@@ -35,9 +35,9 @@ Notes:
 
 ## Demo
 
-| Main | Settings |
-|--------|--------|
-| ![Main](./images/main.png) | ![Settings](./images/Settings.png) |
+| mainpage | settings | full settings | presets |
+|--------|--------|--------|--------|
+| ![mainpage](./images/mainpage.png) | ![设置](./images/settings.png) | ![设置](./images/settings_full.png) | ![应用预设](./images/preset.png)|
 
 ## Notice
 
