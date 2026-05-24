@@ -71,6 +71,18 @@ class SettingsFragment : BaseFragment() {
                         updateConfig()
                     }
                 },
+                SwitchItem(getString(R.string.config_catch_picasso_pic), moduleConfig.isCatchPicassoPic, getString(R.string.config_catch_picasso_pic_desc)).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.isCatchPicassoPic = checked 
+                        updateConfig()
+                    }
+                },
+                SwitchItem(getString(R.string.config_catch_litho_pic), moduleConfig.isCatchLithoPic, getString(R.string.config_catch_litho_pic_desc)).apply {
+                    addPropertyChangeListener { 
+                        moduleConfig.isCatchLithoPic = checked
+                        updateConfig()
+                    }
+                },
                 SwitchItem(getString(R.string.config_catch_coil_pic), moduleConfig.isCatchCoilPic, getString(R.string.config_catch_coil_pic_desc)).apply {
                     addPropertyChangeListener { 
                         moduleConfig.isCatchCoilPic = checked 

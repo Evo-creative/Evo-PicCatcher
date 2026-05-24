@@ -13,6 +13,14 @@ class ModuleConfig(var source: JSONObject) {
         get() = JSONX.optBoolean(source, "isCatchGlidePic", true)
         set(value) { source.put("isCatchGlidePic", value) }
 
+    var isCatchPicassoPic: Boolean
+        get() = JSONX.optBoolean(source, "isCatchPicassoPic", true)
+        set(value) { source.put("isCatchPicassoPic", value) }
+
+    var isCatchLithoPic: Boolean
+        get() = JSONX.optBoolean(source, "isCatchLithoPic", true)
+        set(value) { source.put("isCatchLithoPic", value) }
+
     var isCatchWebViewPic: Boolean
         get() = JSONX.optBoolean(source, "isCatchWebViewPic", true)
         set(value) { source.put("isCatchWebViewPic", value) }

@@ -10,7 +10,6 @@ import android.util.TypedValue;
 import com.lu.lposed.api2.XC_MethodHook2;
 import com.lu.lposed.api2.XposedHelpers2;
 import com.lu.lposed.plugin.IPlugin;
-
 import com.pic.catcher.config.ModuleConfig;
 
 import java.io.File;
@@ -19,18 +18,15 @@ import java.io.InputStream;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 /**
- * @author Mingyueyixi
- * @date 2024/9/22 0:22
- * @description bitmap hook
+ * BitmapFactory 全局拦截插件
+ * 覆盖所有主要的 decodeXXX 方法
  */
 public class BitmapCatcherPlugin implements IPlugin {
-    private boolean isEnabled = true;
 
     @Override
     public void handleHook(Context context, XC_LoadPackage.LoadPackageParam loadPackageParam) {
-        // 插件加载时同步一次开关状态，之后由 ModuleConfig 内部的异步刷新线程通过其单例更新
-        // 但为了性能，我们在 Hook 回调里尽量直接访问，不再重复 getInstance
         
+        // 1. 拦截 decodeFile
         XposedHelpers2.findAndHookMethod(
                 BitmapFactory.class,
                 "decodeFile",
@@ -41,11 +37,13 @@ public class BitmapCatcherPlugin implements IPlugin {
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         if (!ModuleConfig.getInstance().isCatchBitmapPic()) return;
                         String filePath = (String) param.args[0];
-                        if (filePath == null) return;
-                        PicExportManager.getInstance().exportBitmapFile(new File(filePath));
+                        if (filePath != null) {
+                            PicExportManager.getInstance().exportBitmapFile(new File(filePath));
+                        }
                     }
                 });
 
+        // 2. 拦截 decodeStream
         XposedHelpers2.findAndHookMethod(
                 BitmapFactory.class,
                 "decodeStream",
@@ -57,11 +55,14 @@ public class BitmapCatcherPlugin implements IPlugin {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         if (!ModuleConfig.getInstance().isCatchBitmapPic()) return;
                         Bitmap bitmap = (Bitmap) param.getResult();
-                        PicExportManager.getInstance().exportBitmap(bitmap);
+                        if (bitmap != null) {
+                            PicExportManager.getInstance().exportBitmap(bitmap);
+                        }
                     }
                 }
         );
 
+        // 3. 拦截 decodeResource
         XposedHelpers2.findAndHookMethod(
                 BitmapFactory.class,
                 "decodeResource",
@@ -73,42 +74,14 @@ public class BitmapCatcherPlugin implements IPlugin {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         if (!ModuleConfig.getInstance().isCatchBitmapPic()) return;
                         Bitmap bitmap = (Bitmap) param.getResult();
-                        PicExportManager.getInstance().exportBitmap(bitmap);
+                        if (bitmap != null) {
+                            PicExportManager.getInstance().exportBitmap(bitmap);
+                        }
                     }
                 }
         );
-        XposedHelpers2.findAndHookMethod(
-                BitmapFactory.class,
-                "decodeResourceStream",
-                Resources.class,
-                TypedValue.class,
-                InputStream.class,
-                Rect.class,
-                BitmapFactory.Options.class,
-                new XC_MethodHook2() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (!ModuleConfig.getInstance().isCatchBitmapPic()) return;
-                        Bitmap bitmap = (Bitmap) param.getResult();
-                        PicExportManager.getInstance().exportBitmap(bitmap);
-                    }
-                }
-        );
-        XposedHelpers2.findAndHookMethod(
-                BitmapFactory.class,
-                "decodeFileDescriptor",
-                java.io.FileDescriptor.class,
-                Rect.class,
-                BitmapFactory.Options.class,
-                new XC_MethodHook2() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (!ModuleConfig.getInstance().isCatchBitmapPic()) return;
-                        Bitmap bitmap = (Bitmap) param.getResult();
-                        PicExportManager.getInstance().exportBitmap(bitmap);
-                    }
-                }
-        );
+
+        // 4. 拦截 decodeByteArray (关键：拦截原始数据)
         XposedHelpers2.findAndHookMethod(
                 BitmapFactory.class,
                 "decodeByteArray",
@@ -124,7 +97,6 @@ public class BitmapCatcherPlugin implements IPlugin {
                         int offset = (int) param.args[1];
                         int length = (int) param.args[2];
                         if (data != null && length > 0) {
-                            // 直接导出原始字节，避免 Bitmap 压缩
                             byte[] actualData;
                             if (offset == 0 && length == data.length) {
                                 actualData = data;
@@ -137,7 +109,45 @@ public class BitmapCatcherPlugin implements IPlugin {
                     }
                 }
         );
+
+        // 5. 拦截 decodeFileDescriptor
+        XposedHelpers2.findAndHookMethod(
+                BitmapFactory.class,
+                "decodeFileDescriptor",
+                java.io.FileDescriptor.class,
+                Rect.class,
+                BitmapFactory.Options.class,
+                new XC_MethodHook2() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!ModuleConfig.getInstance().isCatchBitmapPic()) return;
+                        Bitmap bitmap = (Bitmap) param.getResult();
+                        if (bitmap != null) {
+                            PicExportManager.getInstance().exportBitmap(bitmap);
+                        }
+                    }
+                }
+        );
+
+        // 6. 拦截 decodeResourceStream (较少用，但为了全面性添加)
+        XposedHelpers2.findAndHookMethod(
+                BitmapFactory.class,
+                "decodeResourceStream",
+                Resources.class,
+                TypedValue.class,
+                InputStream.class,
+                Rect.class,
+                BitmapFactory.Options.class,
+                new XC_MethodHook2() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!ModuleConfig.getInstance().isCatchBitmapPic()) return;
+                        Bitmap bitmap = (Bitmap) param.getResult();
+                        if (bitmap != null) {
+                            PicExportManager.getInstance().exportBitmap(bitmap);
+                        }
+                    }
+                }
+        );
     }
-
-
 }

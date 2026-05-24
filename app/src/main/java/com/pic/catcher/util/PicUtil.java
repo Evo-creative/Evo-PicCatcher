@@ -121,6 +121,24 @@ public abstract class PicUtil {
         return result;
     }
 
+    public static android.graphics.Bitmap drawableToBitmap(android.graphics.drawable.Drawable drawable) {
+        if (drawable == null) return null;
+        if (drawable instanceof android.graphics.drawable.BitmapDrawable) {
+            return ((android.graphics.drawable.BitmapDrawable) drawable).getBitmap();
+        }
+        try {
+            int width = Math.max(1, drawable.getIntrinsicWidth());
+            int height = Math.max(1, drawable.getIntrinsicHeight());
+            android.graphics.Bitmap bitmap = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888);
+            android.graphics.Canvas canvas = new android.graphics.Canvas(bitmap);
+            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            drawable.draw(canvas);
+            return bitmap;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     /**
      * 判断是图片后缀
      *

@@ -25,9 +25,11 @@ import com.pic.catcher.plugin.GlideCatcherPlugin;
 import com.pic.catcher.plugin.HardwareRendererCatcherPlugin;
 import com.pic.catcher.plugin.ImageDecoderCatcherPlugin;
 import com.pic.catcher.plugin.ImageViewCatcherPlugin;
+import com.pic.catcher.plugin.LithoCatcherPlugin;
 import com.pic.catcher.plugin.MovieCatcherPlugin;
 import com.pic.catcher.plugin.NativeBitmapCatcherPlugin;
 import com.pic.catcher.plugin.OKHttpPlugin;
+import com.pic.catcher.plugin.PicassoCatcherPlugin;
 import com.pic.catcher.plugin.RenderNodeCatcherPlugin;
 import com.pic.catcher.plugin.SurfaceCatcherPlugin;
 import com.pic.catcher.plugin.WebViewCatcherPlugin;
@@ -219,25 +221,27 @@ public class MainHook implements IXposedHookLoadPackage, IXposedHookZygoteInit, 
 
     private void initTargetPlugins(Context context, XC_LoadPackage.LoadPackageParam lpparam) {
         //目前生成的plugin都是单例的
-        PluginRegistry.register(
-                BitmapCatcherPlugin.class,
-                GlideCatcherPlugin.class,
-                WebViewCatcherPlugin.class,
-                X5WebViewCatcherPlugin.class,
-                OKHttpPlugin.class,
-                FrescoCatcherPlugin.class,
-                DrawableCatcherPlugin.class,
-                CanvasCatcherPlugin.class,
-                MovieCatcherPlugin.class,
-                ImageViewCatcherPlugin.class,
-                ImageDecoderCatcherPlugin.class,
-                CoilCatcherPlugin.class,
-                NativeBitmapCatcherPlugin.class,
-                FileCatcherPlugin.class,
-                RenderNodeCatcherPlugin.class,
-                SurfaceCatcherPlugin.class,
-                HardwareRendererCatcherPlugin.class
-        ).handleHooks(context, lpparam);
+                PluginRegistry.register(
+                        BitmapCatcherPlugin.class,
+                        GlideCatcherPlugin.class,
+                        PicassoCatcherPlugin.class,
+                        LithoCatcherPlugin.class,
+                        WebViewCatcherPlugin.class,
+                        X5WebViewCatcherPlugin.class,
+                        OKHttpPlugin.class,
+                        FrescoCatcherPlugin.class,
+                        DrawableCatcherPlugin.class,
+                        CanvasCatcherPlugin.class,
+                        MovieCatcherPlugin.class,
+                        ImageViewCatcherPlugin.class,
+                        ImageDecoderCatcherPlugin.class,
+                        CoilCatcherPlugin.class,
+                        NativeBitmapCatcherPlugin.class,
+                        FileCatcherPlugin.class,
+                        RenderNodeCatcherPlugin.class,
+                        SurfaceCatcherPlugin.class,
+                        HardwareRendererCatcherPlugin.class
+                ).handleHooks(context, lpparam);
 
     }
 

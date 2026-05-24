@@ -26,6 +26,10 @@
     <string name="config_catch_webview_pic_desc">常用方式，监控网页资源加载。性能影响：低</string>
     <string name="config_catch_glide_pic">抓取Glide框架图片</string>
     <string name="config_catch_glide_pic_desc">极常用，拦截 Glide 缓存。性能影响：低</string>
+    <string name="config_catch_picasso_pic">抓取Picasso框架图片</string>
+    <string name="config_catch_picasso_pic_desc">常用，拦截 Picasso 解码流。性能影响：低</string>
+    <string name="config_catch_litho_pic">抓取Litho框架图片</string>
+    <string name="config_catch_litho_pic_desc">常用于 Pixiv 等，拦截异步挂载组件。性能影响：中</string>
     <string name="config_catch_bitmap_pic">抓取BitmapFactory图片</string>
     <string name="config_catch_bitmap_pic_desc">极常用，拦截系统原生解码。性能影响：低</string>
     <string name="config_catch_fresco_pic">抓取Fresco框架图片</string>
