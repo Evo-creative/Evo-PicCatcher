@@ -1,6 +1,6 @@
 [English](./README_EN.md)
 
-[严肃版中文](./README_EN.md)
+[严肃版中文](./README.md)
 
 # Evo-PicCatcher（图片捕手）
 
