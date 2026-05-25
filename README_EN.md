@@ -1,5 +1,9 @@
 # Evo-PicCatcher
 
+[简体中文](./README.md)
+
+[有活人感的README](./README_h.md)
+
 Repo:[Evo-PicCatcher](https://github.com/Evo-creative/Evo-PicCatcher)
 
 This project is a modified and extended version of `https://github.com/Mingyueyixi/PicCatcher`
