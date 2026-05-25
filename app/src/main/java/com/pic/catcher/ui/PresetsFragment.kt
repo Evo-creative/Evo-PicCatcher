@@ -67,20 +67,33 @@ class PresetsFragment : BaseFragment() {
 
     private fun applyPreset(preset: PresetItem) {
         val config = ModuleConfig.getInstance()
-        
-        // 1. 获取所有配置 Key
-        val details = preset.details
-        
-        // 2. 直接操作 source JSONObject 确保 100% 应用成功
         val source = config.source
-        
-        // 预设是覆盖式的，我们先清理掉所有旧的抓取开关（可选，但这里我们按 details 提供的来）
-        // 为了确保“确定性”，我们遍历 details 中的每一项进行覆盖
-        details.forEach { (key, value) ->
+
+        // 所有拦截开关的 Key 列表，用于在应用预设前进行全局清理
+        val catchKeys = listOf(
+            "isCatchSkiaPic", "isCatchNativeBitmapPic", "isCatchCanvasPic",
+            "isCatchSurfacePic", "isCatchRenderNodePic", "isCatchHardwareRendererPic",
+            "isCatchTextureViewPic", "isCatchWebViewPic", "isCatchComposePic",
+            "isCatchFlutterPic", "isCatchReactNativePic", "isCatchLithoPic",
+            "isCatchNetPic", "isCatchBitmapPic", "isCatchGlidePic", "isCatchCoilPic",
+            "isCatchFrescoPic", "isCatchPicassoPic", "isCatchFilePic", "isCatchMoviePic",
+            "isCatchDrawablePic", "isCatchImageViewPic", "isCatchImageDecoderPic"
+        )
+
+        // 1. 先将所有已知的抓取开关设为 false (互斥清理)
+        catchKeys.forEach { key ->
+            source.put(key, false)
+        }
+
+        // 2. 根据预设详情，开启需要的开关
+        preset.details.forEach { (key, value) ->
             source.put(key, value)
         }
 
+        // 3. 同步对象状态并持久化
+        config.updateFrom(source)
         config.save()
+
         Toast.makeText(context, getString(R.string.presets_applied_toast, preset.name) + "\n" + getString(R.string.toast_plugin_config_change_tip), Toast.LENGTH_LONG).show()
     }
 
