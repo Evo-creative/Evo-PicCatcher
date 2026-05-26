@@ -201,6 +201,20 @@ class SettingsFragment : BaseFragment() {
                 }
             }
         )
+        items.add(
+            SwitchItem(
+                getString(R.string.config_generate_nomedia),
+                moduleConfig.isGenerateNoMedia,
+                getString(R.string.config_generate_nomedia_desc)
+            ).apply {
+                addPropertyChangeListener {
+                    if ("checked" == it.propertyName) {
+                        moduleConfig.isGenerateNoMedia = checked
+                        updateConfig()
+                    }
+                }
+            }
+        )
 
         val authStatus = when (moduleConfig.rootStatus) {
             "AUTHORIZED" -> "${moduleConfig.suManagerName} 已授权"

@@ -66,11 +66,33 @@ public class PicExportManager {
                     File dir = new File(cacheDir, "PicCatcher");
                     if (dir.exists() || dir.mkdirs()) {
                         mCachedCacheDir = dir;
+                        syncNoMediaFile(dir);
                     }
                 }
             }
+        } else {
+            // 每次获取时也校验一下，防止中途设置变更
+            syncNoMediaFile(mCachedCacheDir);
         }
         return mCachedCacheDir;
+    }
+
+    private void syncNoMediaFile(File dir) {
+        try {
+            File noMedia = new File(dir, ".nomedia");
+            boolean shouldExist = ModuleConfig.getInstance().isGenerateNoMedia();
+            if (shouldExist) {
+                if (!noMedia.exists()) {
+                    noMedia.createNewFile();
+                }
+            } else {
+                if (noMedia.exists()) {
+                    noMedia.delete();
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Sync .nomedia failed", e);
+        }
     }
 
     /**

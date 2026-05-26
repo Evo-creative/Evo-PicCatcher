@@ -76,6 +76,8 @@
     <string name="config_save_to_internal">图片保存到内部</string>
     <string name="config_save_to_internal_off">图片会保存到Pictures/PicCatcher</string>
     <string name="config_save_to_internal_on">图片会保存到Android/data/com.evo.piccatcher/files/Pictures</string>
+    <string name="config_generate_nomedia">在保存路径生成 .nomedia 文件</string>
+    <string name="config_generate_nomedia_desc">.nomedia 文件可以防止媒体库检测到已抓取的图片</string>
     <string name="config_save_pic_default_format">当图片格式未知时，保存格式</string>
     <string name="config_pic_quality">图片保存质量 (1-100)</string>
     <string name="spinner_des_jpg_format">jpg格式，图片质量低，大小小，不支持透明像素</string>

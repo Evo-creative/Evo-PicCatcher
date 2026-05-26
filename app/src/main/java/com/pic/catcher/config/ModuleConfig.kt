@@ -104,6 +104,9 @@ class ModuleConfig(var source: JSONObject) {
     var isSaveToInternal: Boolean = JSONX.optBoolean(source, "isSaveToInternal", false)
         set(value) { field = value; source.put("isSaveToInternal", value) }
 
+    var isGenerateNoMedia: Boolean = JSONX.optBoolean(source, "isGenerateNoMedia", true)
+        set(value) { field = value; source.put("isGenerateNoMedia", value) }
+
     var picDefaultSaveFormat: String = JSONX.optString(source, "picDefaultSaveFormat", "webp") ?: "webp"
         set(value) { field = value; source.put("picDefaultSaveFormat", value) }
 
@@ -155,6 +158,7 @@ class ModuleConfig(var source: JSONObject) {
         // Misc
         minSpaceSize = JSONX.optLong(source, "minSpaceSize", 0).toInt()
         isSaveToInternal = JSONX.optBoolean(source, "isSaveToInternal", false)
+        isGenerateNoMedia = JSONX.optBoolean(source, "isGenerateNoMedia", true)
         picDefaultSaveFormat = JSONX.optString(source, "picDefaultSaveFormat", "webp") ?: "webp"
         picQuality = JSONX.optInt(source, "picQuality", 90)
         shellAuthType = JSONX.optString(source, "shellAuthType", "") ?: ""
