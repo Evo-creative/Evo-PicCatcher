@@ -1,54 +1,76 @@
-# Evo-PicCatcher
-
 [简体中文](./README.md)
 
-[有活人感的README](./README_h.md)
+# Evo-PicCatcher
 
-Repo:[Evo-PicCatcher](https://github.com/Evo-creative/Evo-PicCatcher)
+Project repository: [Evo-PicCatcher](https://github.com/Evo-creative/Evo-PicCatcher)
 
-This project is a modified and extended version of `https://github.com/Mingyueyixi/PicCatcher`
+> **Note**: The Xposed module repository only publishes Releases and does not host source code.  
+> This project is a deeply refactored and feature-extended version of [Mingyueyixi/PicCatcher](https://github.com/Mingyueyixi/PicCatcher).
 
 ## Introduction
 
-Evo-PicCatcher is a tool designed to capture images displayed during app runtime.  
-It can be useful for debugging, analysis, and automation purposes.
+Evo-PicCatcher is an Android image auto-capturing tool.  
+Think of it as an “image funnel” — it hooks into the App rendering pipeline through the Xposed framework and automatically saves images displayed inside Apps to your device.
 
-If you have any feature suggestions, feel free to open an Issue. Contributions and ideas are welcome.
+## Supported Capture Methods
+
+To ensure images can be captured from different Apps, multiple interception methods are provided (all can be enabled or disabled freely in settings):
+
+* **Standard image library interception (low overhead, recommended)**:
+    * **Popular frameworks**: Supports mainstream image loading libraries such as Glide, Coil, Fresco, and Picasso.
+    * **System native components**: Intercepts system image decoding (Bitmap) and display components (ImageView).
+    * **Network & files**: Directly extracts images from App network requests or local file reads.
+
+* **Modern framework adaptation (medium impact)**:
+    * **Web images**: Supports capturing images inside webpages (WebView).
+    * **Cross-platform frameworks**: Special adaptations for modern App frameworks such as **Flutter**, **Jetpack Compose**, **React Native**, and Litho.
+
+* **Low-level rendering interception (strong mode, fallback solution)**:
+    * **Rendering engines**: Directly intercepts low-level drawing instructions (Canvas, Skia).
+    * **Screen rendering**: Monitors screen rendering processes (Surface, RenderNode, HardwareRenderer).  
+      If it appears on the screen, there is a chance it can be captured.
+
+## Features
+
+- **Smart presets**: Provides quick “High / Medium / Low” presets for easy configuration.
+- **Automatic deduplication**: Identical images will not be saved repeatedly, saving storage space.
+- **Smooth performance**: Image saving is performed asynchronously in the background without affecting normal App usage.
+- **Prevent gallery spam**: Supports generating `.nomedia` files to prevent captured images from flooding the system gallery (can be disabled in settings).
 
 ## Usage
 
-Select scope apps in LSPosed Manager
+1. **Requirements**:
+    * Requires **LSPosed**
+    * Device must have **Root access**
 
-When apps in the scope are running and display images, the images will be captured (currently the capture methods can only cover most of the content, please understand)
+2. **Activate the module**:
+    * Enable “PicCatcher” inside LSPosed
+    * Select the target Apps you want to capture images from
 
-Notes:
-- The captured images are those that are displayed, so if only thumbnails are shown, only thumbnails can be captured, not the original images
-- The capture is done during app runtime and does not generate any network traffic
+3. **Configure interception methods**:
+    * Open the “PicCatcher” App → Settings
+    * It is recommended to try the “Low overhead” preset first
+    * If images cannot be captured, enable “Medium impact” or “High impact” modes
 
-## Improvements over the original project
+4. **View captured images**:
+    * Default save path:
+      `Pictures/PicCatcher`
 
-- Rebuilt UI following Material Design 3 guidelines  
-- Added more image capture methods:
-  - ImageDecoder  
-  - Coil  
-  - Add FileCatcher support  
-  - Add RenderNode interception  
-  - Add Surface-level monitoring  
-- Option to save images to the app's private directory (`Android/data`), preventing them from appearing in gallery apps  
-- Added logging functionality for easier debugging and issue tracking  
+## Screenshots
 
-## Demo
-
-| mainpage | settings | full settings | presets |
+| Home | Settings | Settings (Interception Switches) | App Presets |
 |--------|--------|--------|--------|
-| ![mainpage](./images/mainpage.png) | ![设置](./images/settings.png) | ![设置](./images/settings_full.png) | ![应用预设](./images/preset.png)|
+| ![Home](./images/mainpage.png) | ![Settings](./images/settings.png) | ![Settings](./images/settings_full.png) | ![Presets](./images/preset.png)|
 
-## Notice
+## Privacy & Security
 
-Some newly added code in this project is generated with the assistance of AI.  
-Please evaluate its reliability and security before use.
+* **Local processing only**: All image capturing and saving is performed locally on your device. No upload functionality exists.
+* **No extra traffic**: The module only intercepts already-loaded data and does not generate additional network traffic.
 
-## Privacy
+---
 
-All image processing is performed locally on the device.  
-No data is collected or uploaded.
+If you have feature suggestions or discover Apps whose images cannot be captured, feel free to submit an [Issue](https://github.com/Evo-creative/Evo-PicCatcher/issues).
+
+## License & Authorization
+
+This project has been officially authorized by the original author **Mingyueyixi** and is licensed under **GPL-v3.0**.
