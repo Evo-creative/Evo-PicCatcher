@@ -374,17 +374,46 @@ class SettingsFragment : BaseFragment() {
                 is EditItem -> {
                     val holder = vh.binding as ItemConfigEditBinding
                     holder.itemTitle.text = item.name
-                    holder.itemEdit.inputType = item.inputType
-                    holder.itemEdit.setText(item.value)
+                    
+                    // 仅在输入类型不同时设置，减少干扰
+                    if (holder.itemEdit.inputType != item.inputType) {
+                        holder.itemEdit.inputType = item.inputType
+                    }
+
+                    // 核心优化：避免重复 setText 导致的光标重置和闪烁
+                    val newValue = item.value ?: ""
+                    if (holder.itemEdit.text.toString() != newValue) {
+                        holder.itemEdit.setText(newValue)
+                        // 将光标移至最后
+                        if (holder.itemEdit.hasFocus()) {
+                            holder.itemEdit.setSelection(newValue.length)
+                        }
+                    }
+
                     val oldWatcher = holder.itemEdit.getTag(R.id.tag_text_watcher) as? TextWatcher
                     holder.itemEdit.removeTextChangedListener(oldWatcher)
                     val textWatcher = object : TextWatcher {
                         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-                        override fun afterTextChanged(s: Editable?) { item.value = s?.toString() }
+                        override fun afterTextChanged(s: Editable?) { 
+                            val str = s?.toString()
+                            if (item.value != str) {
+                                item.value = str
+                            }
+                        }
                     }
                     holder.itemEdit.setTag(R.id.tag_text_watcher, textWatcher)
                     holder.itemEdit.addTextChangedListener(textWatcher)
+
+                    // 增加焦点监听，确保点击时也能把光标移到最后
+                    holder.itemEdit.setOnFocusChangeListener { _, hasFocus ->
+                        if (hasFocus) {
+                            val text = holder.itemEdit.text
+                            if (text != null) {
+                                holder.itemEdit.setSelection(text.length)
+                            }
+                        }
+                    }
                 }
                 is SpinnerItem -> {
                     val holder = vh.binding as ItemConfigSpinnerBinding
