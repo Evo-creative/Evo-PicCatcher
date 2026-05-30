@@ -101,6 +101,9 @@ class ModuleConfig(var source: JSONObject) {
     var minSpaceSize: Int = JSONX.optLong(source, "minSpaceSize", 0).toInt()
         set(value) { field = value; source.put("minSpaceSize", value) }
 
+    var minResolution: String = JSONX.optString(source, "minResolution", "0x0") ?: "0x0"
+        set(value) { field = value; source.put("minResolution", value) }
+
     var isSaveToInternal: Boolean = JSONX.optBoolean(source, "isSaveToInternal", false)
         set(value) { field = value; source.put("isSaveToInternal", value) }
 
@@ -157,6 +160,7 @@ class ModuleConfig(var source: JSONObject) {
 
         // Misc
         minSpaceSize = JSONX.optLong(source, "minSpaceSize", 0).toInt()
+        minResolution = JSONX.optString(source, "minResolution", "0x0") ?: "0x0"
         isSaveToInternal = JSONX.optBoolean(source, "isSaveToInternal", false)
         isGenerateNoMedia = JSONX.optBoolean(source, "isGenerateNoMedia", true)
         picDefaultSaveFormat = JSONX.optString(source, "picDefaultSaveFormat", "webp") ?: "webp"
@@ -229,6 +233,24 @@ class ModuleConfig(var source: JSONObject) {
         @JvmStatic
         fun isLessThanMinSize(length: Long): Boolean {
             return length < getInstance().minSpaceSize * 1024L
+        }
+
+        @JvmStatic
+        fun isLessThanMinResolution(width: Int, height: Int): Boolean {
+            val minRes = getInstance().minResolution
+            if (minRes.isEmpty() || minRes == "0x0") return false
+            return try {
+                val parts = minRes.split("x")
+                if (parts.size == 2) {
+                    val minW = parts[0].trim().toInt()
+                    val minH = parts[1].trim().toInt()
+                    width < minW || height < minH
+                } else {
+                    false
+                }
+            } catch (e: Exception) {
+                false
+            }
         }
     }
 }

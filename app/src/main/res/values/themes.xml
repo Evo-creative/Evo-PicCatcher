@@ -16,4 +16,14 @@
         <item name="android:windowAnimationStyle">@android:style/Animation.Translucent</item>
     </style>
 
+    <!-- Custom Chip Style -->
+    <style name="Widget.Material3.Chip.Suggestion.Thin" parent="Widget.Material3.Chip.Suggestion">
+        <item name="chipMinTouchTargetSize">0dp</item>
+        <item name="android:layout_height">32dp</item>
+    </style>
+
+    <style name="ShapeAppearance.PicCatcher.Rect" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerSize">12dp</item>
+    </style>
+
 </resources>

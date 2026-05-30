@@ -121,6 +121,7 @@ public class PicExportManager {
                     
                     // 仅使用配置中的过滤
                     if (ModuleConfig.isLessThanMinSize((long) bytes.length)) return;
+                    if (ModuleConfig.isLessThanMinResolution(bitmap.getWidth(), bitmap.getHeight())) return;
                     
                     // 优化：使用简单的 Hash 配合长度代替 MD5，减少 CPU 占用
                     String fileName = Integer.toHexString(bitmap.hashCode()) + "_" + bytes.length + "." + format;
@@ -136,6 +137,12 @@ public class PicExportManager {
     public void exportByteArray(final byte[] dataBytes, String lastName) {
         if (dataBytes == null) return;
         if (ModuleConfig.isLessThanMinSize((long) dataBytes.length)) return;
+
+        // 分辨率过滤
+        int[] dimen = PicUtil.getImageDimensions(dataBytes);
+        if (dimen != null && ModuleConfig.isLessThanMinResolution(dimen[0], dimen[1])) {
+            return;
+        }
         
         int identity = System.identityHashCode(dataBytes);
         if (mProcessedIdCache.get(identity) != null) return;
@@ -170,7 +177,13 @@ public class PicExportManager {
     private void exportByteArrayInternal(byte[] data, String suffix) {
         if (data == null) return;
         if (ModuleConfig.isLessThanMinSize((long) data.length)) return;
-        
+
+        // 分辨率过滤
+        int[] dimen = PicUtil.getImageDimensions(data);
+        if (dimen != null && ModuleConfig.isLessThanMinResolution(dimen[0], dimen[1])) {
+            return;
+        }
+
         String ext = TextUtils.isEmpty(suffix) ? PicUtil.detectImageType(data, "bin") : suffix;
         if (!ext.startsWith(".")) ext = "." + ext;
         String fileName = Md5Util.get(data) + ext;

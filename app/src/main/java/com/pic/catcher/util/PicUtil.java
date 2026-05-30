@@ -1,6 +1,8 @@
 package com.pic.catcher.util;
 
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
@@ -119,6 +121,17 @@ public abstract class PicUtil {
             result = "jpg";
         }
         return result;
+    }
+
+    public static int[] getImageDimensions(byte[] data) {
+        if (data == null || data.length == 0) return null;
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeByteArray(data, 0, data.length, options);
+        if (options.outWidth > 0 && options.outHeight > 0) {
+            return new int[]{options.outWidth, options.outHeight};
+        }
+        return null;
     }
 
     public static android.graphics.Bitmap drawableToBitmap(android.graphics.drawable.Drawable drawable) {

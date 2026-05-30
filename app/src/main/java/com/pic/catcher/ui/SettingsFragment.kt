@@ -10,6 +10,11 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import android.animation.ArgbEvaluator
+import android.animation.ValueAnimator
+import android.content.res.ColorStateList
+import androidx.transition.TransitionManager
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.slider.Slider
 import com.pic.catcher.R
 import com.pic.catcher.adapter.BindingListAdapter
@@ -93,80 +98,80 @@ class SettingsFragment : BaseFragment() {
             // --- 高影响 (High) ---
             TextItem(getString(R.string.config_header_high)),
             SwitchItem(getString(R.string.config_catch_skiapic_pic), moduleConfig.isCatchSkiaPic, getString(R.string.config_catch_skiapic_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchSkiaPic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchSkiaPic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_native_bitmap_pic), moduleConfig.isCatchNativeBitmapPic, getString(R.string.config_catch_native_bitmap_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchNativeBitmapPic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchNativeBitmapPic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_canvas_pic), moduleConfig.isCatchCanvasPic, getString(R.string.config_catch_canvas_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchCanvasPic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchCanvasPic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_surface_pic), moduleConfig.isCatchSurfacePic, getString(R.string.config_catch_surface_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchSurfacePic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchSurfacePic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_rendernode_pic), moduleConfig.isCatchRenderNodePic, getString(R.string.config_catch_rendernode_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchRenderNodePic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchRenderNodePic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_hardwarerenderer_pic), moduleConfig.isCatchHardwareRendererPic, getString(R.string.config_catch_hardwarerenderer_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchHardwareRendererPic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchHardwareRendererPic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_textureview_pic), moduleConfig.isCatchTextureViewPic, getString(R.string.config_catch_textureview_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchTextureViewPic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchTextureViewPic = checked; updateConfig(); refreshConfigUI() }
             },
 
             // --- 中影响 (Medium) ---
             TextItem(getString(R.string.config_header_medium)),
             SwitchItem(getString(R.string.config_catch_webview_pic), moduleConfig.isCatchWebViewPic, getString(R.string.config_catch_webview_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchWebViewPic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchWebViewPic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_compose_pic), moduleConfig.isCatchComposePic, getString(R.string.config_catch_compose_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchComposePic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchComposePic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_flutter_pic), moduleConfig.isCatchFlutterPic, getString(R.string.config_catch_flutter_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchFlutterPic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchFlutterPic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_reactnative_pic), moduleConfig.isCatchReactNativePic, getString(R.string.config_catch_reactnative_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchReactNativePic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchReactNativePic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_litho_pic), moduleConfig.isCatchLithoPic, getString(R.string.config_catch_litho_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchLithoPic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchLithoPic = checked; updateConfig(); refreshConfigUI() }
             },
 
             // --- 低开销 (Low) ---
             TextItem(getString(R.string.config_header_low)),
             SwitchItem(getString(R.string.config_catch_net_pic), moduleConfig.isCatchNetPic, getString(R.string.config_catch_net_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchNetPic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchNetPic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_bitmap_pic), moduleConfig.isCatchBitmapPic, getString(R.string.config_catch_bitmap_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchBitmapPic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchBitmapPic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_glide_pic), moduleConfig.isCatchGlidePic, getString(R.string.config_catch_glide_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchGlidePic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchGlidePic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_coil_pic), moduleConfig.isCatchCoilPic, getString(R.string.config_catch_coil_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchCoilPic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchCoilPic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_fresco_pic), moduleConfig.isCatchFrescoPic, getString(R.string.config_catch_fresco_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchFrescoPic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchFrescoPic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_picasso_pic), moduleConfig.isCatchPicassoPic, getString(R.string.config_catch_picasso_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchPicassoPic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchPicassoPic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_file_pic), moduleConfig.isCatchFilePic, getString(R.string.config_catch_file_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchFilePic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchFilePic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_movie_pic), moduleConfig.isCatchMoviePic, getString(R.string.config_catch_movie_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchMoviePic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchMoviePic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_drawable_pic), moduleConfig.isCatchDrawablePic, getString(R.string.config_catch_drawable_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchDrawablePic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchDrawablePic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_imageview_pic), moduleConfig.isCatchImageViewPic, getString(R.string.config_catch_imageview_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchImageViewPic = checked; updateConfig() }
+                addPropertyChangeListener { moduleConfig.isCatchImageViewPic = checked; updateConfig(); refreshConfigUI() }
             },
             SwitchItem(getString(R.string.config_catch_imagedecoder_pic), moduleConfig.isCatchImageDecoderPic, getString(R.string.config_catch_imagedecoder_pic_desc)).apply {
-                addPropertyChangeListener { moduleConfig.isCatchImageDecoderPic = checked; updateConfig() }
-            }
+                addPropertyChangeListener { moduleConfig.isCatchImageDecoderPic = checked; updateConfig(); refreshConfigUI() }
+            },
         )
 
         val items = mutableListOf<ItemType>()
@@ -224,9 +229,19 @@ class SettingsFragment : BaseFragment() {
         }
         items.add(TextItem("授权状态", authStatus))
 
+        val resParts = moduleConfig.minResolution.split("x")
+        val resWidth = resParts.getOrNull(0) ?: "0"
+        val resHeight = resParts.getOrNull(1) ?: "0"
+
         items.addAll(listOf(
             EditItem(getString(R.string.config_min_space_size), moduleConfig.minSpaceSize.toString(), InputType.TYPE_CLASS_NUMBER).apply {
                 addPropertyChangeListener { moduleConfig.minSpaceSize = value.toIntElse(0); updateConfig() }
+            },
+            ResolutionItem(getString(R.string.config_min_resolution), resWidth, resHeight).apply {
+                onResolutionChanged { w, h ->
+                    moduleConfig.minResolution = "${w.ifEmpty { "0" }}x${h.ifEmpty { "0" }}"
+                    updateConfig()
+                }
             },
             SliderItem(getString(R.string.config_pic_quality), moduleConfig.picQuality.toFloat(), 1.0f, 100.0f).apply {
                 addPropertyChangeListener {
@@ -319,8 +334,52 @@ class SettingsFragment : BaseFragment() {
         moduleConfig.save()
     }
 
+    private fun animateButtonState(
+        button: com.google.android.material.button.MaterialButton,
+        isFilled: Boolean,
+        colorPrimary: Int,
+        colorOnPrimary: Int
+    ) {
+        val startColor = if (isFilled) android.graphics.Color.TRANSPARENT else colorPrimary
+        val endColor = if (isFilled) colorPrimary else android.graphics.Color.TRANSPARENT
+
+        val startTextColor = if (isFilled) colorPrimary else colorOnPrimary
+        val endTextColor = if (isFilled) colorOnPrimary else colorPrimary
+
+        val startStroke = if (isFilled) 1.dp else 0
+        val endStroke = if (isFilled) 0 else 1.dp
+
+        val animator = ValueAnimator.ofFloat(0f, 1f)
+        animator.duration = 350
+        animator.interpolator = android.view.animation.AnimationUtils.loadInterpolator(
+            context,
+            android.R.interpolator.fast_out_slow_in
+        )
+
+        val argbEvaluator = ArgbEvaluator()
+        animator.addUpdateListener { animation ->
+            val fraction = animation.animatedValue as Float
+            
+            // 背景色渐变
+            val currentColor = argbEvaluator.evaluate(fraction, startColor, endColor) as Int
+            button.backgroundTintList = ColorStateList.valueOf(currentColor)
+            
+            // 文字颜色渐变
+            val currentTextColor = argbEvaluator.evaluate(fraction, startTextColor, endTextColor) as Int
+            button.setTextColor(currentTextColor)
+            
+            // 描边渐变
+            val currentStroke = (startStroke + (endStroke - startStroke) * fraction).toInt()
+            button.strokeWidth = currentStroke
+            if (!isFilled) {
+                button.strokeColor = ColorStateList.valueOf(colorPrimary)
+            }
+        }
+        animator.start()
+    }
+
     inner class ConfigListAdapter : BindingListAdapter<ItemType>() {
-        override fun getViewTypeCount(): Int = 7
+        override fun getViewTypeCount(): Int = 8
         override fun getItemViewType(position: Int): Int {
             val item = getItem(position) ?: return ItemType.TYPE_TEXT
             return when (item) {
@@ -330,6 +389,7 @@ class SettingsFragment : BaseFragment() {
                 is SliderItem -> ItemType.TYPE_SLIDER
                 is GroupItem -> ItemType.TYPE_GROUP
                 is QuickPresetItem -> ItemType.TYPE_QUICK_PRESET
+                is ResolutionItem -> ItemType.TYPE_RESOLUTION
                 else -> ItemType.TYPE_TEXT
             }
         }
@@ -341,6 +401,7 @@ class SettingsFragment : BaseFragment() {
             ItemType.TYPE_SLIDER -> BindingHolder(ItemConfigSliderBinding.inflate(layoutInflater, parent, false))
             ItemType.TYPE_GROUP -> BindingHolder(ItemConfigGroupBinding.inflate(layoutInflater, parent, false))
             ItemType.TYPE_QUICK_PRESET -> BindingHolder(ItemConfigQuickPresetBinding.inflate(layoutInflater, parent, false))
+            ItemType.TYPE_RESOLUTION -> BindingHolder(ItemConfigResolutionBinding.inflate(layoutInflater, parent, false))
             else -> BindingHolder(ItemConfigTextBinding.inflate(layoutInflater, parent, false))
         }
 
@@ -349,10 +410,74 @@ class SettingsFragment : BaseFragment() {
             when (val item = getItem(position)) {
                 is QuickPresetItem -> {
                     val holder = vh.binding as ItemConfigQuickPresetBinding
-                    holder.btnAll.setOnClickListener { item.onPresetSelected?.invoke(QuickPresetItem.PresetLevel.ALL) }
-                    holder.btnHigh.setOnClickListener { item.onPresetSelected?.invoke(QuickPresetItem.PresetLevel.HIGH) }
-                    holder.btnMedium.setOnClickListener { item.onPresetSelected?.invoke(QuickPresetItem.PresetLevel.MEDIUM) }
-                    holder.btnLow.setOnClickListener { item.onPresetSelected?.invoke(QuickPresetItem.PresetLevel.LOW) }
+                    val context = vh.binding.root.context
+                    
+                    // 激活态颜色：使用 Tertiary (通常为金黄/青色系) 以区别于主色调
+                    val colorActiveBg = MaterialColors.getColor(context, com.google.android.material.R.attr.colorTertiary, android.graphics.Color.YELLOW)
+                    val colorActiveText = MaterialColors.getColor(context, com.google.android.material.R.attr.colorOnTertiary, android.graphics.Color.BLACK)
+                    
+                    // 非激活态颜色：使用暗淡的容器色
+                    val colorInactiveBg = MaterialColors.getColor(context, com.google.android.material.R.attr.colorSurfaceContainerHigh, android.graphics.Color.LTGRAY)
+                    val colorInactiveText = MaterialColors.getColor(context, com.google.android.material.R.attr.colorOnSurfaceVariant, android.graphics.Color.GRAY)
+
+                    val checkState = { level: QuickPresetItem.PresetLevel ->
+                        val targetList = when (level) {
+                            QuickPresetItem.PresetLevel.ALL -> listOf(
+                                "isCatchSkiaPic", "isCatchNativeBitmapPic", "isCatchCanvasPic",
+                                "isCatchSurfacePic", "isCatchRenderNodePic", "isCatchHardwareRendererPic",
+                                "isCatchTextureViewPic", "isCatchWebViewPic", "isCatchComposePic", 
+                                "isCatchFlutterPic", "isCatchReactNativePic", "isCatchLithoPic",
+                                "isCatchNetPic", "isCatchBitmapPic", "isCatchGlidePic", "isCatchCoilPic",
+                                "isCatchFrescoPic", "isCatchPicassoPic", "isCatchFilePic", "isCatchMoviePic",
+                                "isCatchDrawablePic", "isCatchImageViewPic", "isCatchImageDecoderPic"
+                            )
+                            QuickPresetItem.PresetLevel.HIGH -> listOf(
+                                "isCatchSkiaPic", "isCatchNativeBitmapPic", "isCatchCanvasPic",
+                                "isCatchSurfacePic", "isCatchRenderNodePic", "isCatchHardwareRendererPic",
+                                "isCatchTextureViewPic"
+                            )
+                            QuickPresetItem.PresetLevel.MEDIUM -> listOf(
+                                "isCatchWebViewPic", "isCatchComposePic", "isCatchFlutterPic",
+                                "isCatchReactNativePic", "isCatchLithoPic"
+                            )
+                            QuickPresetItem.PresetLevel.LOW -> listOf(
+                                "isCatchNetPic", "isCatchBitmapPic", "isCatchGlidePic", "isCatchCoilPic",
+                                "isCatchFrescoPic", "isCatchPicassoPic", "isCatchFilePic", "isCatchMoviePic",
+                                "isCatchDrawablePic", "isCatchImageViewPic", "isCatchImageDecoderPic"
+                            )
+                        }
+                        targetList.all { key ->
+                            try {
+                                val field = moduleConfig.javaClass.getDeclaredField(key)
+                                field.isAccessible = true
+                                field.get(moduleConfig) as Boolean
+                            } catch (e: Exception) { false }
+                        }
+                    }
+
+                    val updateBtn = { btnView: android.view.View, level: QuickPresetItem.PresetLevel ->
+                        val btn = btnView as com.google.android.material.button.MaterialButton
+                        val isActive = checkState(level)
+                        if (isActive) {
+                            btn.backgroundTintList = ColorStateList.valueOf(colorActiveBg)
+                            btn.setTextColor(colorActiveText)
+                            btn.strokeWidth = 0
+                        } else {
+                            btn.backgroundTintList = ColorStateList.valueOf(colorInactiveBg)
+                            btn.setTextColor(colorInactiveText)
+                            btn.strokeWidth = 1.dp
+                            btn.strokeColor = ColorStateList.valueOf(colorInactiveText).withAlpha(40)
+                        }
+                        btn.setOnClickListener { 
+                            item.onPresetSelected?.invoke(level)
+                            refreshConfigUI()
+                        }
+                    }
+
+                    updateBtn(holder.btnAll, QuickPresetItem.PresetLevel.ALL)
+                    updateBtn(holder.btnHigh, QuickPresetItem.PresetLevel.HIGH)
+                    updateBtn(holder.btnMedium, QuickPresetItem.PresetLevel.MEDIUM)
+                    updateBtn(holder.btnLow, QuickPresetItem.PresetLevel.LOW)
                 }
                 is GroupItem -> {
                     val holder = vh.binding as ItemConfigGroupBinding
@@ -412,6 +537,97 @@ class SettingsFragment : BaseFragment() {
                             if (text != null) {
                                 holder.itemEdit.setSelection(text.length)
                             }
+                        }
+                    }
+                }
+                is ResolutionItem -> {
+                    val holder = vh.binding as ItemConfigResolutionBinding
+                    holder.itemTitle.text = item.title
+
+                    // 初始化文本并避免光标重置
+                    if (holder.editWidth.text.toString() != item.width) {
+                        holder.editWidth.setText(item.width)
+                    }
+                    if (holder.editHeight.text.toString() != item.height) {
+                        holder.editHeight.setText(item.height)
+                    }
+
+                    // 宽度监听
+                    val oldWidthWatcher = holder.editWidth.getTag(R.id.tag_text_watcher) as? TextWatcher
+                    holder.editWidth.removeTextChangedListener(oldWidthWatcher)
+                    val widthWatcher = object : TextWatcher {
+                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                        override fun afterTextChanged(s: Editable?) {
+                            val str = s?.toString() ?: ""
+                            if (item.width != str) {
+                                item.width = str
+                                item.notifyChanged()
+                            }
+                        }
+                    }
+                    holder.editWidth.addTextChangedListener(widthWatcher)
+                    holder.editWidth.setTag(R.id.tag_text_watcher, widthWatcher)
+
+                    // 高度监听
+                    val oldHeightWatcher = holder.editHeight.getTag(R.id.tag_text_watcher) as? TextWatcher
+                    holder.editHeight.removeTextChangedListener(oldHeightWatcher)
+                    val heightWatcher = object : TextWatcher {
+                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                        override fun afterTextChanged(s: Editable?) {
+                            val str = s?.toString() ?: ""
+                            if (item.height != str) {
+                                item.height = str
+                                item.notifyChanged()
+                            }
+                        }
+                    }
+                    holder.editHeight.addTextChangedListener(heightWatcher)
+                    holder.editHeight.setTag(R.id.tag_text_watcher, heightWatcher)
+
+                    // 交换按钮逻辑
+                    holder.btnSwap.setOnClickListener {
+                        val temp = item.width
+                        item.width = item.height
+                        item.height = temp
+                        holder.editWidth.setText(item.width)
+                        holder.editHeight.setText(item.height)
+                        item.notifyChanged()
+                    }
+
+                    // 动态切换按钮样式：预览中为实色填充，正常为描边中空
+                    val colorPrimary = MaterialColors.getColor(holder.btnResolutionPreview, android.R.attr.colorPrimary)
+                    val colorOnPrimary = MaterialColors.getColor(holder.btnResolutionPreview, com.google.android.material.R.attr.colorOnPrimary, android.graphics.Color.WHITE)
+                    
+                    if (item.isPreviewing) {
+                        holder.btnResolutionPreview.backgroundTintList = ColorStateList.valueOf(colorPrimary)
+                        holder.btnResolutionPreview.setTextColor(colorOnPrimary)
+                        holder.btnResolutionPreview.strokeWidth = 0
+                    } else {
+                        holder.btnResolutionPreview.backgroundTintList = ColorStateList.valueOf(android.graphics.Color.TRANSPARENT)
+                        holder.btnResolutionPreview.setTextColor(colorPrimary)
+                        holder.btnResolutionPreview.strokeWidth = 1.dp
+                        holder.btnResolutionPreview.strokeColor = ColorStateList.valueOf(colorPrimary)
+                    }
+
+                    // 绑定预览按钮逻辑
+                    holder.btnResolutionPreview.setOnClickListener {
+                        val w = item.width.toIntElse(0)
+                        val h = item.height.toIntElse(0)
+                        if (w > 0 && h > 0) {
+                            if (item.isPreviewing) {
+                                (activity as? MainActivity)?.hideResolutionGuide()
+                            } else {
+                                item.isPreviewing = true
+                                animateButtonState(holder.btnResolutionPreview, true, colorPrimary, colorOnPrimary)
+                                (activity as? MainActivity)?.showResolutionGuide(w, h) {
+                                    item.isPreviewing = false
+                                    animateButtonState(holder.btnResolutionPreview, false, colorPrimary, colorOnPrimary)
+                                }
+                            }
+                        } else {
+                            Toast.makeText(context, "请输入有效的宽高", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }

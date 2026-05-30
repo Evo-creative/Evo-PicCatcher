@@ -72,7 +72,15 @@
     <string name="config_header_medium">现代框架与 UI 容器 (中影响)</string>
     <string name="config_header_low">标准图片库与基础组件 (低开销)</string>
     <string name="config_header_save_settings">图片保存</string>
-    <string name="config_min_space_size">图片不小于（单位/KiB）</string>
+    <string name="config_min_space_size">图片不小于 (KiB)</string>
+    <string name="config_min_resolution">图片分辨率不小于</string>
+    <string name="config_min_resolution_hint">例如: 1080x2240</string>
+    <string name="res_width">宽</string>
+    <string name="res_height">高</string>
+    <string name="res_total_pixels">约 %.1f MP %2$s</string>
+    <string name="res_square">[正方形]</string>
+    <string name="res_landscape">[横屏]</string>
+    <string name="res_portrait">[竖屏]</string>
     <string name="config_save_to_internal">图片保存到内部</string>
     <string name="config_save_to_internal_off">图片会保存到Pictures/PicCatcher</string>
     <string name="config_save_to_internal_on">图片会保存到Android/data/com.evo.piccatcher/files/Pictures</string>

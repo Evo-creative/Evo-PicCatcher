@@ -1,137 +1,158 @@
 package com.pic.catcher.ui
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
+import android.view.Gravity
 import android.view.View
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
+import android.view.ViewGroup
+import android.view.animation.AnimationUtils
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
-import com.google.android.material.color.DynamicColors
 import com.pic.catcher.R
 import com.pic.catcher.base.BaseActivity
-import com.pic.catcher.databinding.LayoutMainBinding
-import com.pic.catcher.route.AppRouter
-import com.pic.catcher.util.RootUtil
-import com.pic.catcher.service.PicWatcherService
-import com.pic.catcher.ui.vm.AppUpdateViewModel
-import com.pic.catcher.base.ViewModelProviders
 import com.pic.catcher.config.ModuleConfig
+import com.pic.catcher.databinding.LayoutMainBinding
+import com.pic.catcher.ui.view.ResolutionGuideView
+import com.pic.catcher.util.RootUtil
 import com.lu.magic.util.thread.AppExecutor
 
 class MainActivity : BaseActivity() {
     private lateinit var binding: LayoutMainBinding
+    private var resolutionGuideView: ResolutionGuideView? = null
+    private var onResolutionGuideDismissed: (() -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // 启用 Material You 动态取色
-        DynamicColors.applyToActivityIfAvailable(this)
         super.onCreate(savedInstanceState)
-        
-        // 关键：触发系统创建 /Android/data/com.evo.piccatcher 目录
-        getExternalFilesDir(null)
-        
-        // 沉浸式状态栏支持
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        
         binding = LayoutMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 监听窗口 Insets，实现输入法弹出时隐藏导航栏
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
-            val imeVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
-            binding.bottomNavigation.visibility = if (imeVisible) View.GONE else View.VISIBLE
-            insets
-        }
+        setupNavigation()
+        checkRootOnStart()
+    }
 
+    private fun setupNavigation() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_settings -> {
-                    switchFragment(SettingsFragment::class.java)
-                    true
-                }
-                R.id.nav_home -> {
-                    switchFragment(HomeFragment::class.java)
-                    true
-                }
-                R.id.nav_presets -> {
-                    switchFragment(PresetsFragment::class.java)
-                    true
-                }
-                else -> false
+                R.id.nav_home -> switchFragment(HomeFragment::class.java)
+                R.id.nav_settings -> switchFragment(SettingsFragment::class.java)
+                R.id.nav_presets -> switchFragment(PresetsFragment::class.java)
             }
+            true
         }
-
-        // 默认选中中间 of 首页
-        binding.bottomNavigation.selectedItemId = R.id.nav_home
-
-        ViewModelProviders.from(this).get(AppUpdateViewModel::class.java).checkOnEnter(this)
-        handleDeeplinkRoute(intent)
-        
-        // 启动时检测一次 Root 状态
-        checkRootOnStart()
-        
-        // 显式启动图片监控搬运服务
-        Log.wtf("PicWatcher", "MainActivity: Attempting to start PicWatcherService")
-        try {
-            startService(Intent(this, PicWatcherService::class.java))
-            Log.wtf("PicWatcher", "MainActivity: startService() called successfully")
-        } catch (e: Exception) {
-            Log.wtf("PicWatcher", "MainActivity: Failed to start service", e)
+        // 默认选中首页
+        if (supportFragmentManager.fragments.isEmpty()) {
+            binding.bottomNavigation.selectedItemId = R.id.nav_home
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
-    private fun switchFragment(clazz: Class<out Fragment>) {
-        val tag = clazz.name
+    private fun switchFragment(fragmentClass: Class<out Fragment>) {
+        val tag = fragmentClass.name
         val transaction = supportFragmentManager.beginTransaction()
-        
-        // 隐藏当前所有 Fragment
-        supportFragmentManager.fragments.forEach { transaction.hide(it) }
-        
-        var fragment = supportFragmentManager.findFragmentByTag(tag)
-        if (fragment == null) {
-            fragment = clazz.newInstance()
-            transaction.add(R.id.mainContainer, fragment, tag)
+        val currentFragment = supportFragmentManager.primaryNavigationFragment
+        val newFragment = supportFragmentManager.findFragmentByTag(tag) ?: fragmentClass.newInstance()
+
+        if (currentFragment != null) {
+            transaction.hide(currentFragment)
+        }
+
+        if (!newFragment.isAdded) {
+            transaction.add(R.id.mainContainer, newFragment, tag)
         } else {
-            transaction.show(fragment)
+            transaction.show(newFragment)
         }
-        transaction.commit()
-    }
 
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        handleDeeplinkRoute(intent)
-    }
-
-    private fun handleDeeplinkRoute(intent: Intent?) {
-        if (intent == null) return
-        val from = intent.getStringExtra("from")
-        if (DeepLinkActivity::class.java.name != from) {
-            return
-        }
-        intent.data?.let {
-            binding.root.post {
-                AppRouter.route(this, it.toString())
-            }
-        }
+        transaction.setPrimaryNavigationFragment(newFragment)
+        transaction.setReorderingAllowed(true)
+        transaction.commitNow()
     }
 
     private fun checkRootOnStart() {
+        // 使用正确的 io 线程执行
         AppExecutor.io().execute {
-            val result = RootUtil.checkRootStatus()
             val config = ModuleConfig.getInstance()
-            config.rootStatus = result.status.name
-            config.suManagerName = result.suName
-            // 如果之前没设置过授权方式，且现在授权成功了，默认选上 Root
+            val result = RootUtil.checkRootStatus()
             if (config.shellAuthType.isEmpty() && result.status == RootUtil.Status.AUTHORIZED) {
                 config.shellAuthType = "Root"
             }
             config.save()
         }
+    }
+
+    fun showResolutionGuide(width: Int, height: Int, onDismiss: (() -> Unit)? = null) {
+        if (resolutionGuideView != null) {
+            hideResolutionGuide()
+            return
+        }
+        
+        this.onResolutionGuideDismissed = onDismiss
+        val navHeight = binding.bottomNavigation.height
+        
+        val guideView = ResolutionGuideView(this).apply {
+            id = View.generateViewId()
+            
+            // 使用 CoordinatorLayout 参数实现居中并避开底部
+            val lp = CoordinatorLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            lp.gravity = Gravity.CENTER
+            // 抵消导航栏高度，确保“视觉居中”
+            lp.bottomMargin = navHeight
+            layoutParams = lp
+
+            // 设置高层级阴影
+            elevation = 32f
+            translationZ = 32f
+
+            setResolution(width, height)
+            // 设置移动边界限制
+            setBottomInset(navHeight)
+            
+            alpha = 0f
+            scaleX = 0.85f
+            scaleY = 0.85f
+            animate()
+                .alpha(1f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(400)
+                .setInterpolator(AnimationUtils.loadInterpolator(context, android.R.interpolator.fast_out_slow_in))
+                .start()
+        }
+        
+        binding.coordinatorLayout.addView(guideView)
+        guideView.bringToFront() // 强制到最前
+        resolutionGuideView = guideView
+        
+        guideView.setOnClickListener {
+            hideResolutionGuide()
+        }
+    }
+
+    fun hideResolutionGuide() {
+        val view = resolutionGuideView ?: return
+        resolutionGuideView = null 
+        
+        view.animate()
+            .alpha(0f)
+            .scaleX(0.9f)
+            .scaleY(0.9f)
+            .setDuration(250)
+            .setInterpolator(AnimationUtils.loadInterpolator(this, android.R.interpolator.fast_out_slow_in))
+            .setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    binding.coordinatorLayout.removeView(view)
+                    onResolutionGuideDismissed?.invoke()
+                    onResolutionGuideDismissed = null
+                }
+            })
+            .start()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        resolutionGuideView = null
     }
 }
