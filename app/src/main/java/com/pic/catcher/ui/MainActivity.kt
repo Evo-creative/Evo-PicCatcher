@@ -30,6 +30,20 @@ class MainActivity : BaseActivity() {
 
         setupNavigation()
         checkRootOnStart()
+        startWatcherService()
+    }
+
+    private fun startWatcherService() {
+        try {
+            val intent = Intent(this, com.pic.catcher.service.PicWatcherService::class.java)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                startForegroundService(intent)
+            } else {
+                startService(intent)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun setupNavigation() {

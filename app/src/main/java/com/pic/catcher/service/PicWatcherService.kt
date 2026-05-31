@@ -35,12 +35,15 @@ class PicWatcherService : Service() {
     private val harvestRunnable = object : Runnable {
         override fun run() {
             try {
-                performBatchHarvest()
+                // 确保 Root 会话已建立，且仅在 Root 权限下运行脚本
+                if (RootUtil.hasRootPermission()) {
+                    performBatchHarvest()
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Harvest error", e)
             } finally {
-                // 将扫描频率设置为 15 秒，更及时地搬运图片
-                serviceHandler.postDelayed(this, 15000)
+                // 将扫描频率设置为 10 秒，更及时地搬运图片
+                serviceHandler.postDelayed(this, 10000)
             }
         }
     }
@@ -80,21 +83,23 @@ class PicWatcherService : Service() {
      * 使用单条复杂的 Shell 脚本完成批量检测和搬运
      */
     private fun performBatchHarvest() {
-        if (!RootUtil.hasRootPermission()) return
-
         val isInternal = ModuleConfig.getInstance().isSaveToInternal
         val targetRoot = if (isInternal) MODULE_PRIVATE_ROOT else PUBLIC_ROOT
 
         // 核心脚本优化：
         // 1. 扫描 Android/data 和 /data/data (某些受保护 App)
         // 2. 只有发现文件才进行搬运，搬运成功后才删除源文件
+        // 3. 增强：添加对 /storage/emulated/0 的兼容性
         val script = """
             TARGET_BASE="$targetRoot"
             mkdir -p "${"$"}TARGET_BASE"
             
             # 定义扫描函数
             scan_and_move() {
-                local base_dir=${"$"}1
+                local base_dir="${"$"}1"
+                # 兼容不同挂载点路径
+                [ -d "${"$"}base_dir" ] || return
+                
                 for dir in ${"$"}base_dir/*/cache/PicCatcher; do
                     [ -d "${"$"}dir" ] || continue
                     files=$(ls -A "${"$"}dir" 2>/dev/null)
@@ -102,6 +107,7 @@ class PicWatcherService : Service() {
                         pkg=$(echo "${"$"}dir" | awk -F'/' '{print $(NF-2)}')
                         dest="${"$"}TARGET_BASE/${"$"}pkg"
                         mkdir -p "${"$"}dest"
+                        # 使用 cp -Rf 配合 rm -rf 实现跨挂载点安全转移
                         if cp -Rf "${"$"}dir"/* "${"$"}dest/" 2>/dev/null; then
                             rm -rf "${"$"}dir"/*
                             echo "Harvested from ${"$"}pkg"
@@ -111,6 +117,7 @@ class PicWatcherService : Service() {
             }
 
             scan_and_move "/sdcard/Android/data"
+            scan_and_move "/storage/emulated/0/Android/data"
             scan_and_move "/data/data"
         """.trimIndent()
 

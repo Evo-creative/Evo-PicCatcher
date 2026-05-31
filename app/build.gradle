@@ -66,7 +66,7 @@ android {
         minSdk 29
         targetSdk TARGET_SDK_VERSION.toInteger()
         versionCode 61
-        versionName "4.9.18"
+        versionName "4.9.19"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
